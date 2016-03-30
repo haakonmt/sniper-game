@@ -1,0 +1,10 @@
+<?import javafx.scene.layout.VBox?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<VBox fx:id="mainBox" alignment="CENTER" spacing="20" fx:controller="no.social.snipergame.controller.MainController" xmlns:fx="http://javafx.com/fxml">
+    <padding>
+        <Insets bottom="10" top="10" left="10" right="10"/>
+    </padding>
+    <Button text="Sniper" onAction="#chooseSniper"/>
+    <Button text="Spotter" onAction="#chooseSpotter"/>
+</VBox>

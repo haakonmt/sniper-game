@@ -1,0 +1,4 @@
+<?import javafx.scene.layout.HBox?>
+<HBox fx:controller="no.social.snipergame.controller.SniperController" xmlns:fx="http://javafx.com/fxml">
+
+</HBox>
