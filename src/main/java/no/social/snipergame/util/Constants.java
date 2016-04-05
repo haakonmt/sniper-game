@@ -1,4 +1,4 @@
-package no.social.snipergame;
+package no.social.snipergame.util;
 
 /**
  * @author Håkon Meyer Tørnquist <haakon.t@gmail.com>
@@ -7,7 +7,7 @@ package no.social.snipergame;
 public class Constants {
 
     public static final int SERVER_PORT = 1337;
-    public static final String IP = "localhost";
+    public static final String SERVER_HOSTNAME = "localhost";
 
     public enum Difficulty {
         EASY, MEDIUM, HARD, VERY_HARD
