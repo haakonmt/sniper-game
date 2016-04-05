@@ -1,8 +1,8 @@
 package no.social.snipergame.model;
 
-import javafx.animation.Timeline;
-import no.social.snipergame.Client;
+import no.social.snipergame.ClientProgram;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static no.social.snipergame.Constants.Difficulty;
@@ -14,29 +14,35 @@ import static no.social.snipergame.Constants.Difficulty;
 public class Game {
 
     private long id;
-    private Timeline timer;
     private Difficulty difficulty;
-    private Client sniper, spotter;
+    private LocalDateTime startTime;
+    private ClientProgram sniper, spotter;
     private List<Person> persons;
 
-    public Game(Client sniper, Client spotter) {
+    public Game(ClientProgram sniper, ClientProgram spotter) {
         this.sniper = sniper;
         this.spotter = spotter;
+        startTime = LocalDateTime.now();
     }
 
-    public Client getSniper() {
+    public ClientProgram getSniper() {
         return sniper;
     }
 
-    public void setSniper(Client sniper) {
+    public void setSniper(ClientProgram sniper) {
         this.sniper = sniper;
     }
 
-    public Client getSpotter() {
+    public ClientProgram getSpotter() {
         return spotter;
     }
 
-    public void setSpotter(Client spotter) {
+    public void setSpotter(ClientProgram spotter) {
         this.spotter = spotter;
+    }
+
+    @Override
+    public String toString() {
+        return difficulty + " - " + startTime;
     }
 }
