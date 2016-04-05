@@ -1,8 +1,6 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.image.Image?>
 <HBox fx:controller="no.social.snipergame.controller.SpotterController" xmlns:fx="http://javafx.com/fxml">
     <VBox alignment="CENTER" spacing="10" prefWidth="320">
         <padding>

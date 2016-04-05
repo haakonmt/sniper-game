@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<Pane prefHeight="768" prefWidth="1366" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8" fx:controller="no.social.snipergame.controller.ClientController">
+    <children>
+        <HBox layoutX="31.0" layoutY="34.0" prefHeight="700.0" prefWidth="1300.0" spacing="10.0">
+            <children>
+                <VBox prefHeight="700.0" prefWidth="310.0" spacing="10.0">
+                    <children>
+                        <HBox prefHeight="39.0" prefWidth="310.0" spacing="10.0">
+                            <children>
+                                <Label text="Wind:">
+                                    <font>
+                                        <Font size="18.0" />
+                                    </font>
+                                </Label>
+                                <Label fx:id="windLabel">
+                                    <font>
+                                        <Font size="18.0" />
+                                    </font>
+                                </Label>
+                            </children>
+                        </HBox>
+                        <HBox prefHeight="45.0" prefWidth="310.0" spacing="10.0">
+                            <children>
+                                <Label text="Coordinates:">
+                                    <font>
+                                        <Font size="18.0" />
+                                    </font>
+                                </Label>
+                                <Label fx:id="coordinateLabel">
+                                    <font>
+                                        <Font size="18.0" />
+                                    </font>
+                                </Label>
+                            </children>
+                        </HBox>
+                        <HBox prefHeight="45.0" prefWidth="310.0" spacing="10.0">
+                            <children>
+                                <Label text="Time:">
+                                    <font>
+                                        <Font size="18.0" />
+                                    </font>
+                                </Label>
+                                <Label fx:id="TimeLabel">
+                                    <font>
+                                        <Font size="18.0" />
+                                    </font>
+                                </Label>
+                            </children>
+                        </HBox>
+                        <TextArea fx:id="chatArea" prefHeight="523.0" prefWidth="310.0" />
+                        <HBox prefHeight="66.0" prefWidth="310.0" spacing="10.0">
+                            <children>
+                                <TextField fx:id="chatField" />
+                                <Button fx:id="chatSubmitButton" mnemonicParsing="false" text="Submit" />
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+                <ImageView fitHeight="700.0" fitWidth="990.0" pickOnBounds="true" preserveRatio="true" />
+            </children>
+        </HBox>
+    </children>
+</Pane>
