@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
  * @author Håkon Meyer Tørnquist <haakon.t@gmail.com>
  *         Date: 19.02.2016 10.35.
  */
-public class SpotterController extends ClientController {
+public class SpotterController extends GameController {
 
     @FXML private Label time, wind, coordinates, targetLabel;
     @FXML private TextArea chat;
@@ -52,12 +52,12 @@ public class SpotterController extends ClientController {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        coordinates.setText(OUTSIDE_TEXT);
+        //coordinates.setText(OUTSIDE_TEXT);
         scope = new Image("/crosshair.png");
         mark = new ImageView(new Image("/red-x.png"));
         background.getChildren().setAll(createImage("/sample-1.jpg"));
 
-        wind.setText(new Wind().toString());
+        wind.setText(Wind.random().toString());
         chatField.setOnAction(event -> sendText());
         startTime = System.currentTimeMillis();
         Timeline timer = new Timeline(new KeyFrame(Duration.millis(1), event -> {
@@ -81,7 +81,7 @@ public class SpotterController extends ClientController {
 
         imgView.setOnMouseMoved(event -> coordinates.setText("X: " + (int) event.getX()/10 + " Y: " + (int) event.getY()/10));
 
-        imgView.setOnMouseExited(event -> coordinates.setText(OUTSIDE_TEXT));
+        //imgView.setOnMouseExited(event -> coordinates.setText(OUTSIDE_TEXT));
 
         imgView.setOnMouseClicked(event -> {
             //targetLabel.setText("Target locked at:\n" + "X: " + (int) event.getX()/10 + ", Y: " + (int) event.getY()/10);

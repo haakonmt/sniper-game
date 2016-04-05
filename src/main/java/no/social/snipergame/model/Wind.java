@@ -1,8 +1,8 @@
 package no.social.snipergame.model;
 
-import no.social.snipergame.Constants.Direction;
+import no.social.snipergame.util.Constants.Direction;
 
-import static no.social.snipergame.Constants.Direction.*;
+import static no.social.snipergame.util.Constants.Direction.*;
 
 /**
  * @author Håkon Meyer Tørnquist <haakon.t@gmail.com>
@@ -13,17 +13,16 @@ public class Wind {
     private final int speed;
     private final Direction direction;
 
-    public Wind() {
-        this.speed = (int) ((Math.random() < 0.5 ? 10 : 100) * Math.random()); // Returns an int between 0 and 100
-        this.direction = pickDirection(Math.random());
-    }
-
     public Wind(int speed, Direction direction) {
         this.speed = speed;
         this.direction = direction;
     }
 
-    private Direction pickDirection(double random) {
+    public static Wind random() {
+        return new Wind((int) ((Math.random() < 0.5 ? 10 : 100) * Math.random()), pickDirection(Math.random()));
+    }
+
+    private static Direction pickDirection(double random) {
         return random < 0.125 ? NORTH_EAST
                 : random < 0.25 ? EAST
                 : random < 0.375 ? SOUTH_EAST

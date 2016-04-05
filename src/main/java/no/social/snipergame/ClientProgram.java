@@ -14,7 +14,7 @@ public class ClientProgram extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource("/fxml/mainView.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("/fxml/gameView.fxml"));
         primaryStage.setTitle("Sniper Recon");
         primaryStage.setScene(new Scene(root));
         primaryStage.show();

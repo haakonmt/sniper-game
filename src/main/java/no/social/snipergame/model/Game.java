@@ -1,11 +1,16 @@
 package no.social.snipergame.model;
 
-import no.social.snipergame.ClientProgram;
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.util.Duration;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
-import static no.social.snipergame.Constants.Difficulty;
+import static no.social.snipergame.util.Constants.Difficulty;
 
 /**
  * @author Håkon Meyer Tørnquist <haakon.t@gmail.com>
@@ -13,32 +18,28 @@ import static no.social.snipergame.Constants.Difficulty;
  */
 public class Game {
 
-    private long id;
     private Difficulty difficulty;
     private LocalDateTime startTime;
-    private ClientProgram sniper, spotter;
-    private List<Person> persons;
+    private List<Person> persons = new ArrayList<>();
+    private Wind wind;
+    private Timeline timer;
+    private int winX, winY;
 
-    public Game(ClientProgram sniper, ClientProgram spotter) {
-        this.sniper = sniper;
-        this.spotter = spotter;
+    public Game(Difficulty difficulty) {
+        this.difficulty = difficulty;
+        wind = Wind.random();
         startTime = LocalDateTime.now();
-    }
 
-    public ClientProgram getSniper() {
-        return sniper;
-    }
-
-    public void setSniper(ClientProgram sniper) {
-        this.sniper = sniper;
-    }
-
-    public ClientProgram getSpotter() {
-        return spotter;
-    }
-
-    public void setSpotter(ClientProgram spotter) {
-        this.spotter = spotter;
+        long milliStart = System.currentTimeMillis();
+        timer = new Timeline(new KeyFrame(Duration.millis(1), event -> {
+            long millis = System.currentTimeMillis() - milliStart;
+            long minutes = TimeUnit.MILLISECONDS.toMinutes(millis);
+            long seconds = TimeUnit.MILLISECONDS.toSeconds(millis) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis));
+            millis -= TimeUnit.SECONDS.toMillis(TimeUnit.MILLISECONDS.toSeconds(millis));
+            String sendThisSomewhere = String.format("%d:%02d:%03d", minutes, seconds, millis);
+        }));
+        timer.setCycleCount(Animation.INDEFINITE);
+        timer.play();
     }
 
     @Override
