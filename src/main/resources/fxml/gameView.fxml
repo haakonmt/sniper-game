@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
-<Pane prefHeight="768" prefWidth="1366" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8" fx:controller="no.social.snipergame.controller.ClientController">
+
+<Pane prefHeight="768" prefWidth="1366" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="no.social.snipergame.controller.GameController">
     <children>
         <HBox layoutX="31.0" layoutY="34.0" prefHeight="700.0" prefWidth="1300.0" spacing="10.0">
             <children>
@@ -17,11 +20,12 @@
                                         <Font size="18.0" />
                                     </font>
                                 </Label>
-                                <Label fx:id="windLabel">
+                                <Label fx:id="windLabel" prefHeight="27.0" prefWidth="162.0" text="6 m/s, NE">
                                     <font>
                                         <Font size="18.0" />
                                     </font>
                                 </Label>
+                        <Button fx:id="sendWindButton" mnemonicParsing="false" onAction="#sendWind" text="Send wind" />
                             </children>
                         </HBox>
                         <HBox prefHeight="45.0" prefWidth="310.0" spacing="10.0">
@@ -31,11 +35,12 @@
                                         <Font size="18.0" />
                                     </font>
                                 </Label>
-                                <Label fx:id="coordinateLabel">
+                                <Label fx:id="coordinateLabel" prefHeight="27.0" prefWidth="72.0" text="X: 45, Y: 15">
                                     <font>
                                         <Font size="18.0" />
                                     </font>
                                 </Label>
+                        <Button fx:id="sendCoordinatesButton" alignment="CENTER" mnemonicParsing="false" onAction="#sendCoords" text="Send coordinates" />
                             </children>
                         </HBox>
                         <HBox prefHeight="45.0" prefWidth="310.0" spacing="10.0">
@@ -45,18 +50,18 @@
                                         <Font size="18.0" />
                                     </font>
                                 </Label>
-                                <Label fx:id="TimeLabel">
+                                <Label fx:id="timeLabel">
                                     <font>
                                         <Font size="18.0" />
                                     </font>
                                 </Label>
                             </children>
                         </HBox>
-                        <TextArea fx:id="chatArea" prefHeight="523.0" prefWidth="310.0" />
+                        <TextArea fx:id="chatArea" editable="false" prefHeight="523.0" prefWidth="310.0" />
                         <HBox prefHeight="66.0" prefWidth="310.0" spacing="10.0">
                             <children>
-                                <TextField fx:id="chatField" />
-                                <Button fx:id="chatSubmitButton" mnemonicParsing="false" text="Submit" />
+                                <TextField fx:id="chatField" onAction="#sendMessage" prefHeight="25.0" prefWidth="237.0" />
+                                <Button mnemonicParsing="false" onAction="#sendMessage" text="Submit" />
                             </children>
                         </HBox>
                     </children>
@@ -64,5 +69,10 @@
                 <ImageView fitHeight="700.0" fitWidth="990.0" pickOnBounds="true" preserveRatio="true" />
             </children>
         </HBox>
+      <Label fx:id="nameLabel" alignment="CENTER" layoutX="548.0" layoutY="14.0" prefHeight="53.0" prefWidth="271.0">
+         <font>
+            <Font size="36.0" />
+         </font>
+      </Label>
     </children>
 </Pane>
