@@ -1,22 +1,32 @@
 package no.social.snipergame.controller;
 
+import com.google.gson.Gson;
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Dimension2D;
+import javafx.scene.ImageCursor;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.TilePane;
 import javafx.scene.paint.Color;
+import no.social.snipergame.model.Cell;
+import no.social.snipergame.model.Coordinates;
 import no.social.snipergame.model.Game;
 import no.social.snipergame.network.Client;
 import no.social.snipergame.network.NetworkConnection;
 import no.social.snipergame.network.Server;
-import no.social.snipergame.util.Constants;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+
+import static no.social.snipergame.util.Constants.SERVER_HOSTNAME;
+import static no.social.snipergame.util.Constants.SERVER_PORT;
 
 /**
  * @author Håkon Meyer Tørnquist <haakon.t@gmail.com>
@@ -24,6 +34,9 @@ import java.util.ResourceBundle;
  */
 public class GameController implements Initializable  {
 
+    @FXML private Pane background;
+    @FXML private TilePane grid;
+    @FXML private Label currentCoordinatesLabel;
     @FXML private Button sendWindButton;
     @FXML private Button sendCoordinatesButton;
     @FXML private Label nameLabel;
@@ -33,32 +46,62 @@ public class GameController implements Initializable  {
     @FXML private Label coordinateLabel;
     @FXML private TextField chatField;
 
+    private ImageView mark;
+
     private Game game;
 
-    private boolean sniper;
+    private Gson gson;
+
+    private Image scope;
+
+    private Coordinates markedCoordinates, curserCoordinates;
+
+    private boolean sniper = true;
 
     private String name = sniper ? "Sniper" : "Spotter";
     private NetworkConnection connection = sniper ? createServer() : createClient();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        scope = new Image("/crosshair.png");
+        mark = new ImageView("/red-x.png");
+        for (int i = 0; i < 24*17; i++) {
+            grid.getChildren().addAll(new Cell(false));
+        }
+        markedCoordinates = curserCoordinates =  new Coordinates(0,0);
         nameLabel.setText(name);
         nameLabel.setTextFill(sniper ? Color.RED : Color.GREEN);
+        coordinateLabel.setText(markedCoordinates.toString());
         if (sniper) {
+            connection = createServer();
             windLabel.setText("");
             coordinateLabel.setText("");
             sendCoordinatesButton.setVisible(false);
             sendWindButton.setVisible(false);
         }
+
+
+        background.setCursor(new ImageCursor(scope, scope.getWidth()/2, scope.getHeight()/2));
+
+        grid.setOnMouseMoved(event -> currentCoordinatesLabel.setText("X: " + (int) event.getX()/10 + " Y: " + (int) event.getY()/10));
+
+        //grid.setOnMouseExited(event -> coordinates.setText(OUTSIDE_TEXT));
+
+        grid.setOnMouseClicked(event -> {
+            //targetLabel.setText("Target locked at:\n" + "X: " + (int) event.getX()/10 + ", Y: " + (int) event.getY()/10);
+            background.getChildren().remove(mark);
+            Dimension2D dim = ImageCursor.getBestSize(event.getScreenX(), event.getScreenY());
+            mark.setFitHeight(dim.getHeight());
+            mark.setFitWidth(dim.getWidth());
+            mark.setLayoutX(event.getX() - mark.getFitWidth() / 2);
+            mark.setLayoutY(event.getSceneY() - (1.65* mark.getFitHeight()));
+            background.getChildren().add(mark);
+        });
         try {
             connection.startConnection();
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    public void fireTimeChanged(String time) {
-        timeLabel.setText(time);
     }
 
     @FXML
@@ -72,11 +115,11 @@ public class GameController implements Initializable  {
     }
 
     private Client createClient() {
-        return new Client(Constants.SERVER_HOSTNAME, Constants.SERVER_PORT, data -> Platform.runLater(() -> processData(data.toString())));
+        return new Client(SERVER_HOSTNAME, SERVER_PORT, data -> Platform.runLater(() -> processData(data.toString())));
     }
 
     private Server createServer() {
-        return new Server(Constants.SERVER_PORT, data -> Platform.runLater(() -> processData(data.toString())));
+        return new Server(SERVER_PORT, data -> Platform.runLater(() -> processData(data.toString())));
     }
 
     private void processData(String s) {

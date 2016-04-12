@@ -35,7 +35,9 @@ public abstract class NetworkConnection {
     }
 
     protected abstract boolean isServer();
+
     protected abstract String getIp();
+
     protected abstract int getPort();
 
     private class ConnectionThread extends Thread {
