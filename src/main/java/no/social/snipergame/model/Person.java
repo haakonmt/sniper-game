@@ -1,12 +1,13 @@
 package no.social.snipergame.model;
 
-import javafx.geometry.Rectangle2D;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
+import no.social.snipergame.model.asset.*;
+import no.social.snipergame.model.asset.CharacterAsset.Sex;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Random;
+
+import static no.social.snipergame.model.asset.CharacterAsset.Sex.FEMALE;
+import static no.social.snipergame.model.asset.CharacterAsset.Sex.MALE;
 
 /**
  * @author Håkon Meyer Tørnquist <haakon.t@gmail.com>
@@ -14,117 +15,44 @@ import java.util.Random;
  */
 public class Person extends StackPane {
 
-    private final static Map<String, String[]> hairColorMap = new HashMap<>();
-    private final static Map<String, String[]> shirtColorMap = new HashMap<>();
-
-    static {
-        // Female hair
-        hairColorMap.put("Bun", new String[]{"Black", "Brown", "DarkGrey", "Golden",
-                "LightBlonde", "LightGrey", "NavyBlue", "Orange", "Red", "White"});
-        hairColorMap.put("LongWavy", new String[]{"Black", "Blonde", "BrightGreen", "Brown",
-                "Golden", "Grey", "NavyBlue", "Orange", "Purple", "Red", "Turquoise", "White"});
-        String[] ponyTailColors = new String[]{"Blonde", "Golden", "Green_Blue", "Grey",
-                "LightBlue", "NavyBlue", "Orange", "Pink", "Purple", "Red", "White"};
-        hairColorMap.put("PonyTail", ponyTailColors);
-        hairColorMap.put("PonyTailMessy", ponyTailColors);
-        hairColorMap.put("Straight", new String[]{"Black", "Blonde", "BrightGreen", "DirtyWhite", "Golden",
-                "Grey", "Orange", "Pink", "Purple", "Red", "Turquoise"});
-
-        // Male hair
-        hairColorMap.put("Afro", new String[]{"Black", "Gold", "Grey", "NavyBlue", "Orange", "Red"});
-        hairColorMap.put("Balding", new String[]{"Black", "Brown", "Gold", "Grey", "LightGrey",
-                "NavyBlue", "Orange", "Red", "White"});
-        hairColorMap.put("RegularCut", new String[]{"Brown", "Gold", "Grey", "NavyBlue", "Orange", "Red"});
-        hairColorMap.put("Spiked", new String[]{"Black", "Blonde", "BrightGreen", "Brown", "Gold", "NavyBlue",
-                "Orange", "Purple", "Red", "Turquoise", "White"});
-
-        // Shirt color
-        shirtColorMap.put("Plain", new String[]{"Black", "Blue", "DarkGreyBlue", "Green", "Grey", "LightPurple",
-                "Orange", "Pink", "Red", "Turquoise", "White", "Yellow"});
-        shirtColorMap.put("Striped", new String[]{"Blue", "DarkGreen", "Green", "Grey", "Purple", "Orange", "Pink", "Red", "Yellow"});
-    }
-
-    private final static String
-            IMAGE_PREFIX = "/characters/", IMAGE_POSTFIX = ".png",
-
-    MALE_FIRST_NAMES[] = new String[] {
+    private static final String[]
+            MALE_FIRST_NAMES = new String[] {
             "James", "John", "Robert", "Michael", "William", "Steven", "Nicholas", "Gary",
             "David", "Richard", "Charles", "Joseph", "Thomas", "Christopher", "Daniel",
             "Paul", "Mark", "Donald", "George", "Justin", "Brian", "Anthony", "Jason",
             "Matthew", "Kevin", "Edward"
     },
-
-    FEMALE_FIRST_NAMES[] = new String[]{
-            "Mary", "Patricia", "Linda", "Barbara", "Elizabeth", "Jennifer", "Maria", "Susan",
-            "Margaret", "Dorothy", "Lisa", "Nancy", "Karen", "Betty", "Helen", "Sandra", "Donna",
-            "Carol", "Ruth", "Sharon", "Michelle", "Laura", "Sarah", "Kimberly", "Deborah",
-            "Jessica", "Shirley", "Cynthia", "Angela", "Melissa"
-    },
-
-    LAST_NAMES[] = new String[]{
-            "Smith", "Johnson", "Williams", "Jones", "Brown", "Davis", "Miller", "Wilson",
-            "Moore", "Taylor", "Anderson", "Thomas", "Jackson", "White", "Harris", "Martin",
-            "Thompson", "Garcia", "Robinson", "Clark", "Lewis", "Lee", "Walker", "Rodriguez",
-            "Allen", "Stewart", "Sanchez", "Scott", "Green"
-    };
+            FEMALE_FIRST_NAMES = new String[]{
+                    "Mary", "Patricia", "Linda", "Barbara", "Elizabeth", "Jennifer", "Maria", "Susan",
+                    "Margaret", "Dorothy", "Lisa", "Nancy", "Karen", "Betty", "Helen", "Sandra", "Donna",
+                    "Carol", "Ruth", "Sharon", "Michelle", "Laura", "Sarah", "Kimberly", "Deborah",
+                    "Jessica", "Shirley", "Cynthia", "Angela", "Melissa"
+            },
+            LAST_NAMES = new String[]{
+                    "Smith", "Johnson", "Williams", "Jones", "Brown", "Davis", "Miller", "Wilson",
+                    "Moore", "Taylor", "Anderson", "Thomas", "Jackson", "White", "Harris", "Martin",
+                    "Thompson", "Garcia", "Robinson", "Clark", "Lewis", "Lee", "Walker", "Rodriguez",
+                    "Allen", "Stewart", "Sanchez", "Scott", "Green"
+            };
 
     private String firstName, lastName;
-    private String sex;
+    private Sex sex;
     private static final Random random = new Random();
+    private final boolean target;
 
-    private ImageView base, hair, shirt, pants, shoes;
+    private CharacterAsset base, hair, shirt, pants, shoes;
 
-    public Person() {
-        sex = getRandomStringFrom("male", "female");
-        base = generateBase();
-        hair = generateHair();
-        shirt = generateShirt();
-        pants = generatePants();
-        shoes = generateShoes();
+    public Person(boolean target) {
+        this.target = target;
+        sex = random.nextBoolean() ? MALE : FEMALE;
+        base = new Base(sex);
+        hair = new Hair(sex);
+        shirt = new Shirt(sex);
+        pants = new Pants(sex);
+        shoes = new Shoes(sex);
         getChildren().addAll(base, hair, shirt, pants, shoes);
-        firstName = getRandomStringFrom(sex.equals("male") ? MALE_FIRST_NAMES : FEMALE_FIRST_NAMES);
+        firstName = getRandomStringFrom(sex == MALE ? MALE_FIRST_NAMES : FEMALE_FIRST_NAMES);
         lastName = getRandomStringFrom(LAST_NAMES);
-    }
-
-    private ImageView generateShoes() {
-        ImageView imageView = new ImageView(IMAGE_PREFIX + "shoes/Shoes-" +
-                getRandomStringFrom("Black", "Blue", "DarkBrown", "Green", "Grey", "LightBrown",
-                        "LightGrey", "Orange", "Purple", "Red", "Yellow") + IMAGE_POSTFIX);
-        imageView.setViewport(new Rectangle2D(40, 0, 40, 40));
-        return imageView;
-    }
-
-    private ImageView generateShirt() {
-        String type = getRandomStringFrom("Plain", "Striped");
-        String color = getRandomStringFrom(shirtColorMap.get(type));
-        return generateImageView(IMAGE_PREFIX + sex + "/shirts/" + (sex.equals("male") ? "Guy" : "Girl")
-                + "Shirt-" + type + "-" + color + IMAGE_POSTFIX);
-    }
-
-    private ImageView generatePants() {
-        return generateImageView(IMAGE_PREFIX + "pants/Pants-" +
-                getRandomStringFrom("Black", "Blue", "Brown", "Green", "Grey",
-                        "Orange", "Purple", "Red", "Yellow") + IMAGE_POSTFIX);
-    }
-
-    private ImageView generateHair() {
-        boolean male = sex.equals("male");
-        String hairType = (male ?
-                getRandomStringFrom("Afro", "Balding", "RegularCut", "Spiked") :
-                getRandomStringFrom("Bun", "LongWavy", "PonyTail", "PonyTailMessy", "Straight"));
-        return generateImageView(IMAGE_PREFIX + sex + "/hair/Hair-" + (male ? "Guy" : "Girl") + "-"
-                + hairType + "-" + getRandomStringFrom(hairColorMap.get(hairType)) + IMAGE_POSTFIX);
-    }
-
-    private ImageView generateBase() {
-        return generateImageView(IMAGE_PREFIX + sex + "/base/" + (sex.equals("male") ? "Guy" : "Girl")
-                + "Base-" + getRandomStringFrom("Dark", "Med", "Light") + IMAGE_POSTFIX);
-    }
-
-    private ImageView generateImageView(String url) {
-        ImageView imageView = new ImageView(url);
-        imageView.setViewport(new Rectangle2D(40, 0, 40, 40));
-        return imageView;
     }
 
     public String getFirstName() {
@@ -145,5 +73,33 @@ public class Person extends StackPane {
 
     private static String getRandomStringFrom(String... items) {
         return items[random.nextInt(items.length)];
+    }
+
+    public boolean isTarget() {
+        return target;
+    }
+
+    public Sex getSex() {
+        return sex;
+    }
+
+    public CharacterAsset getBase() {
+        return base;
+    }
+
+    public CharacterAsset getHair() {
+        return hair;
+    }
+
+    public CharacterAsset getShirt() {
+        return shirt;
+    }
+
+    public CharacterAsset getPants() {
+        return pants;
+    }
+
+    public CharacterAsset getShoes() {
+        return shoes;
     }
 }

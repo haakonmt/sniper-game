@@ -8,6 +8,7 @@ import javafx.util.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import static no.social.snipergame.util.Constants.Difficulty;
@@ -20,7 +21,7 @@ public class Game {
 
     private Difficulty difficulty;
     private LocalDateTime startTime;
-    private List<Person> persons = new ArrayList<>();
+    private final Person[] persons = new Person[24*17];
     private Wind wind;
     private Timeline timer;
     private int winX, winY;
@@ -29,7 +30,14 @@ public class Game {
         this.difficulty = difficulty;
         wind = Wind.random();
         startTime = LocalDateTime.now();
+        Random random = new Random();
+        int target = random.nextInt(persons.length);
+        for (int i = 0; i < persons.length; i++) {
+            if (i == target) persons[i] = new Person(true);
+            else persons[i] = random.nextBoolean() ? new Person(false) : null;
+        }
 
+        /*
         long milliStart = System.currentTimeMillis();
         timer = new Timeline(new KeyFrame(Duration.millis(1), event -> {
             long millis = System.currentTimeMillis() - milliStart;
@@ -40,6 +48,11 @@ public class Game {
         }));
         timer.setCycleCount(Animation.INDEFINITE);
         timer.play();
+        */
+    }
+
+    public Person[] getPersons() {
+        return persons;
     }
 
     @Override

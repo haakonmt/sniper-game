@@ -13,14 +13,15 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.TilePane;
 import javafx.scene.paint.Color;
-import no.social.snipergame.model.Cell;
 import no.social.snipergame.model.Coordinates;
 import no.social.snipergame.model.Game;
 import no.social.snipergame.network.Client;
 import no.social.snipergame.network.NetworkConnection;
 import no.social.snipergame.network.Server;
+import no.social.snipergame.util.Constants;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -56,7 +57,7 @@ public class GameController implements Initializable  {
 
     private Coordinates markedCoordinates, curserCoordinates;
 
-    private boolean sniper = true;
+    private boolean sniper = false;
 
     private String name = sniper ? "Sniper" : "Spotter";
     private NetworkConnection connection = sniper ? createServer() : createClient();
@@ -65,8 +66,11 @@ public class GameController implements Initializable  {
     public void initialize(URL location, ResourceBundle resources) {
         scope = new Image("/crosshair.png");
         mark = new ImageView("/red-x.png");
+        game = sniper ? new Game(Constants.Difficulty.EASY) : new Game(Constants.Difficulty.EASY);
         for (int i = 0; i < 24*17; i++) {
-            grid.getChildren().addAll(new Cell(false));
+            StackPane stackPane = new StackPane(new ImageView("/icons/grass.png"));
+            if (game.getPersons()[i] != null) stackPane.getChildren().add(game.getPersons()[i]);
+            grid.getChildren().add(stackPane);
         }
         markedCoordinates = curserCoordinates =  new Coordinates(0,0);
         nameLabel.setText(name);
@@ -79,7 +83,6 @@ public class GameController implements Initializable  {
             sendCoordinatesButton.setVisible(false);
             sendWindButton.setVisible(false);
         }
-
 
         background.setCursor(new ImageCursor(scope, scope.getWidth()/2, scope.getHeight()/2));
 
