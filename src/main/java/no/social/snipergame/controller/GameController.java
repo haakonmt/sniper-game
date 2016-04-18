@@ -25,7 +25,6 @@ import no.social.snipergame.util.Constants;
 
 import java.net.URL;
 import java.util.ResourceBundle;
-import java.util.Random;
 
 import static no.social.snipergame.util.Constants.SERVER_HOSTNAME;
 import static no.social.snipergame.util.Constants.SERVER_PORT;
@@ -69,11 +68,10 @@ public class GameController implements Initializable  {
         mark = new ImageView("/red-x.png");
         game = sniper ? new Game(Constants.Difficulty.EASY) : new Game(Constants.Difficulty.EASY);
         // Select a random tile from the list
-        Array tiles = [brick, desert, grass, ground, ground2];
-        int randomNumber = (int)(Math.random() * 4;
-        String tile = (String)tiles[randomNumber];
+        String[] tiles = new String[]{"brick", "desert", "grass", "ground", "ground2"};
+        String tile = tiles[(int) (Math.random() * 5)];
         for (int i = 0; i < 24*17; i++) {
-            StackPane stackPane = new StackPane(new ImageView("/icons/"+tile+".png"));
+            StackPane stackPane = new StackPane(new ImageView("/icons/" + tile + ".png"));
             if (game.getPersons()[i] != null) stackPane.getChildren().add(game.getPersons()[i]);
             grid.getChildren().add(stackPane);
         }
