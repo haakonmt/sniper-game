@@ -1,15 +1,9 @@
 package no.social.snipergame.model;
 
-import javafx.animation.Animation;
-import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.util.Duration;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
 
 import static no.social.snipergame.util.Constants.Difficulty;
 
@@ -26,7 +20,11 @@ public class Game {
     private Timeline timer;
     private int winX, winY;
 
-    public Game(Difficulty difficulty) {
+    private Client sniper, spotter;
+
+    public Game(Difficulty difficulty, Client sniper, Client spotter) {
+        this.sniper = sniper;
+        this.spotter = spotter;
         this.difficulty = difficulty;
         wind = Wind.random();
         startTime = LocalDateTime.now();
