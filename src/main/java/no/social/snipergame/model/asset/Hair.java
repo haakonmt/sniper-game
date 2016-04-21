@@ -10,6 +10,10 @@ public class Hair extends CharacterAsset {
         super(sex);
     }
 
+    public Hair(String id) {
+        super(id);
+    }
+
     @Override
     String[] getLegalColors(String type) {
         if (sex == Sex.MALE) {

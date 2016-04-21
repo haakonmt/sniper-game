@@ -15,10 +15,12 @@ public class Game {
 
     private Difficulty difficulty;
     private LocalDateTime startTime;
-    private final Person[] persons = new Person[24*17];
+    private final Person[] persons = new Person[23*16];
     private Wind wind;
     private Timeline timer;
     private int winX, winY;
+    private boolean isSniper;
+    private String tile;
 
     private Client sniper, spotter;
 
@@ -34,6 +36,7 @@ public class Game {
             if (i == target) persons[i] = new Person(true);
             else persons[i] = random.nextBoolean() ? new Person(false) : null;
         }
+        tile = new String[]{"brick", "desert", "grass", "ground", "ground2"}[random.nextInt(5)];
 
         /*
         long milliStart = System.currentTimeMillis();
@@ -53,8 +56,42 @@ public class Game {
         return persons;
     }
 
+    public Client getSpotter() {
+        return spotter;
+    }
+
+    public Client getSniper() {
+        return sniper;
+    }
+
+    public Wind getWind() {
+        return wind;
+    }
+
+    public Difficulty getDifficulty() {
+        return difficulty;
+    }
+
+    public Game toSniper() {
+        isSniper = true;
+        return this;
+    }
+
+    public Game toSpotter() {
+        isSniper = false;
+        return this;
+    }
+
+    public boolean isSniper() {
+        return isSniper;
+    }
+
     @Override
     public String toString() {
         return difficulty + " - " + startTime;
+    }
+
+    public String getTile() {
+        return tile;
     }
 }

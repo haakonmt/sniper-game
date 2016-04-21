@@ -9,6 +9,10 @@ public class Pants extends CharacterAsset {
         super(sex);
     }
 
+    public Pants(String id) {
+        super(id);
+    }
+
     @Override
     String[] getLegalColors(String type) {
         return new String[]{"Black", "Blue", "Brown", "Green", "Grey", "Orange", "Purple", "Red", "Yellow"};

@@ -11,23 +11,17 @@ public class Client {
 
     private String nickName;
     private PlayerType type;
-    private Difficulty prefferedDifficulty;
+    private Difficulty preferredDifficulty;
 
-    private Game game;
-
-    public Client(String nickName, PlayerType type, Difficulty prefferedDifficulty) {
+    public Client(String nickName, PlayerType type, Difficulty preferredDifficulty) {
         this.nickName = nickName;
         this.type = type;
-        this.prefferedDifficulty = prefferedDifficulty;
+        this.preferredDifficulty = preferredDifficulty;
     }
 
     @Override
     public String toString() {
-        return "[" + prefferedDifficulty + "][" + type + "] " + nickName;
-    }
-
-    public void setGame(Game game) {
-        this.game = game;
+        return "[" + preferredDifficulty + "][" + type + "] " + nickName;
     }
 
     public String getNickName() {
@@ -38,7 +32,7 @@ public class Client {
         return type;
     }
 
-    public Difficulty getPrefferedDifficulty() {
-        return prefferedDifficulty;
+    public Difficulty getPreferredDifficulty() {
+        return preferredDifficulty;
     }
 }

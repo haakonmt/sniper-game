@@ -13,7 +13,7 @@ import static no.social.snipergame.model.asset.CharacterAsset.Sex.MALE;
  * @author Håkon Meyer Tørnquist <haakon.t@gmail.com>
  *         Date: 22.02.2016 16.05.
  */
-public class Person extends StackPane {
+public class Person {
 
     private static final String[]
             MALE_FIRST_NAMES = new String[] {
@@ -40,17 +40,16 @@ public class Person extends StackPane {
     private static final Random random = new Random();
     private final boolean target;
 
-    private CharacterAsset base, hair, shirt, pants, shoes;
+    private String base, hair, shirt, pants, shoes;
 
     public Person(boolean target) {
         this.target = target;
         sex = random.nextBoolean() ? MALE : FEMALE;
-        base = new Base(sex);
-        hair = new Hair(sex);
-        shirt = new Shirt(sex);
-        pants = new Pants(sex);
-        shoes = new Shoes(sex);
-        getChildren().addAll(base, hair, shirt, pants, shoes);
+        base = new Base(sex).getAssetId();
+        hair = new Hair(sex).getAssetId();
+        shirt = new Shirt(sex).getAssetId();
+        pants = new Pants(sex).getAssetId();
+        shoes = new Shoes(sex).getAssetId();
         firstName = getRandomStringFrom(sex == MALE ? MALE_FIRST_NAMES : FEMALE_FIRST_NAMES);
         lastName = getRandomStringFrom(LAST_NAMES);
     }
@@ -83,23 +82,31 @@ public class Person extends StackPane {
         return sex;
     }
 
-    public CharacterAsset getBase() {
+    public String getBase() {
         return base;
     }
 
-    public CharacterAsset getHair() {
+    public String getHair() {
         return hair;
     }
 
-    public CharacterAsset getShirt() {
+    public String getShirt() {
         return shirt;
     }
 
-    public CharacterAsset getPants() {
+    public String getPants() {
         return pants;
     }
 
-    public CharacterAsset getShoes() {
+    public String getShoes() {
         return shoes;
+    }
+
+    public StackPane compile() {
+        return new StackPane(
+                new Base(base), new Hair(hair),
+                new Shirt(shirt), new Pants(pants),
+                new Shoes(shoes)
+        );
     }
 }

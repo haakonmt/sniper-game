@@ -10,6 +10,10 @@ public class Base extends CharacterAsset {
         super(sex);
     }
 
+    public Base(String id) {
+        super(id);
+    }
+
     @Override
     String[] getLegalColors(String type) {
         return new String[]{"Light", "Med", "Dark"};

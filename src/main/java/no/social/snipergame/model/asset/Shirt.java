@@ -9,6 +9,10 @@ public class Shirt extends CharacterAsset {
         super(sex);
     }
 
+    public Shirt(String id) {
+        super(id);
+    }
+
     @Override
     String[] getLegalColors(String type) {
         switch (type) {

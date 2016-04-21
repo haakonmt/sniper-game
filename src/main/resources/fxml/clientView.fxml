@@ -1,44 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
-<?import java.lang.*?>
+
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
-
-
 <VBox xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="no.social.snipergame.controller.ClientController">
-   <children>
-      <ToolBar prefHeight="40.0" prefWidth="200.0">
-        <items>
-            <Label text="Nickname:">
-               <font>
-                  <Font size="16.0" />
-               </font>
-            </Label>
-            <TextField fx:id="nickNameField" />
-            <ComboBox fx:id="typeBox" prefWidth="150.0" />
-            <ComboBox fx:id="difficultyBox" prefWidth="150.0" />
-            <Label text="Server IP:">
-               <font>
-                  <Font size="16.0" />
-               </font>
-            </Label>
-            <TextField fx:id="ipField" />
-            <Label text="Server port:">
-               <font>
-                  <Font size="16.0" />
-               </font>
-            </Label>
-            <TextField fx:id="portField" />
-            <Button mnemonicParsing="false" onAction="#connect" text="Connect" />
-            <Label fx:id="statusLabel" alignment="CENTER_RIGHT" contentDisplay="RIGHT" prefHeight="25.0" prefWidth="192.0">
-               <font>
-                  <Font size="16.0" />
-               </font>
-            </Label>
-        </items>
-      </ToolBar>
+    <children>
+        <ToolBar prefHeight="40.0" prefWidth="200.0">
+            <items>
+                <Label text="Nickname:">
+                    <font>
+                        <Font size="16.0" />
+                    </font>
+                </Label>
+                <TextField fx:id="nickNameField" />
+                <ComboBox fx:id="typeBox" prefWidth="150.0" />
+                <ComboBox fx:id="difficultyBox" prefWidth="150.0" />
+                <Label text="Server IP:">
+                    <font>
+                        <Font size="16.0" />
+                    </font>
+                </Label>
+                <TextField fx:id="ipField" />
+                <Label text="Server port:">
+                    <font>
+                        <Font size="16.0" />
+                    </font>
+                </Label>
+                <TextField fx:id="portField" />
+                <Button fx:id="connectButton" mnemonicParsing="false" onAction="#connect" text="Connect" />
+                <Label fx:id="statusLabel" alignment="CENTER_RIGHT" contentDisplay="RIGHT" prefHeight="25.0" prefWidth="192.0">
+                    <font>
+                        <Font size="16.0" />
+                    </font>
+                </Label>
+            </items>
+        </ToolBar>
         <HBox fx:id="gameBox" visible="false" prefHeight="680.0" prefWidth="1274.0" spacing="10.0">
             <children>
                 <VBox prefHeight="640.0" prefWidth="342.0" spacing="10.0">
@@ -101,15 +99,11 @@
                         </HBox>
                     </children>
                 </VBox>
-                <Pane fx:id="background" prefHeight="680.0" prefWidth="960.0">
-                    <children>
-                        <TilePane fx:id="grid" prefHeight="680.0" prefWidth="960.0" />
-                    </children>
-                </Pane>
+                <TilePane fx:id="grid" prefHeight="680.0" prefWidth="960.0" />
             </children>
-         <padding>
-            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-         </padding>
+            <padding>
+                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+            </padding>
         </HBox>
-   </children>
+    </children>
 </VBox>

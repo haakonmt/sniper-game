@@ -12,6 +12,8 @@ import java.util.Random;
  */
 public abstract class CharacterAsset extends ImageView {
 
+    String id = "";
+
     public enum Sex {
         MALE, FEMALE
     }
@@ -36,14 +38,27 @@ public abstract class CharacterAsset extends ImageView {
 
     CharacterAsset(Sex sex) {
         this.sex = sex;
+        id += sex + "-";
         type = getRandomStringFrom(getLegalTypes());
+        id += "-";
         color = getRandomStringFrom(getLegalColors(type));
         setImage(new Image(IMAGE_PREFIX + getUrl()));
         setViewport(new Rectangle2D(40, 0, 40, 40));
     }
 
-    private static String getRandomStringFrom(String... items) {
-        return items[random.nextInt(items.length)];
+    CharacterAsset(String id) {
+        String[] parts = id.split("-");
+        sex = Sex.valueOf(parts[0]);
+        type = getLegalTypes()[Integer.valueOf(parts[1])];
+        color = getLegalColors(type)[Integer.valueOf(parts[2])];
+        setImage(new Image(IMAGE_PREFIX + getUrl()));
+        setViewport(new Rectangle2D(40, 0, 40, 40));
+    }
+
+    private String getRandomStringFrom(String... items) {
+        int index = random.nextInt(items.length);
+        id += index;
+        return items[index];
     }
 
     public String getType() {
@@ -52,5 +67,9 @@ public abstract class CharacterAsset extends ImageView {
 
     public String getColor() {
         return color;
+    }
+
+    public String getAssetId() {
+        return id;
     }
 }
