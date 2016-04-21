@@ -9,9 +9,9 @@ import static no.social.snipergame.util.Constants.PlayerType;
  */
 public class Client {
 
-    private String nickName;
-    private PlayerType type;
-    private Difficulty preferredDifficulty;
+    private final String nickName;
+    private final PlayerType type;
+    private final Difficulty preferredDifficulty;
 
     public Client(String nickName, PlayerType type, Difficulty preferredDifficulty) {
         this.nickName = nickName;

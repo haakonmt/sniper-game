@@ -35,12 +35,10 @@ public class Person {
                     "Allen", "Stewart", "Sanchez", "Scott", "Green"
             };
 
-    private String firstName, lastName;
-    private Sex sex;
+    private final String firstName, lastName, base, hair, shirt, pants, shoes;
+    private final Sex sex;
     private static final Random random = new Random();
     private final boolean target;
-
-    private String base, hair, shirt, pants, shoes;
 
     public Person(boolean target) {
         this.target = target;

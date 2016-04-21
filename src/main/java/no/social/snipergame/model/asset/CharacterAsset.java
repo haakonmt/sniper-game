@@ -18,9 +18,9 @@ public abstract class CharacterAsset extends ImageView {
         MALE, FEMALE
     }
 
-    Sex sex;
+    final Sex sex;
 
-    private String type, color;
+    private final String type, color;
 
     private static final String IMAGE_PREFIX = "/characters/", IMAGE_POSTFIX = ".png";
 

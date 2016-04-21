@@ -11,6 +11,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import no.social.snipergame.model.Client;
 import no.social.snipergame.model.Game;
+import no.social.snipergame.model.Message;
 import no.social.snipergame.util.Constants;
 
 import java.io.DataInputStream;
@@ -27,6 +28,8 @@ import java.util.logging.Logger;
  */
 public class ServerController implements Initializable {
 
+    private static Long currentId = 1L;
+
     @FXML private CheckBox welcomeCheckBox;
     @FXML private ListView<Client> clientListView;
     @FXML private ListView<Game> gameListView;
@@ -35,7 +38,7 @@ public class ServerController implements Initializable {
     @FXML private TextArea statusArea;
 
     private ServerSocket serverSocket;
-    private Map<String, ServerSocketAcceptedThread> clientMap = new HashMap<>();
+    private final Map<String, ServerSocketAcceptedThread> clientMap = new HashMap<>();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -84,8 +87,8 @@ public class ServerController implements Initializable {
         Socket socket = null;
         DataInputStream dataInputStream = null;
         DataOutputStream dataOutputStream = null;
-        int count;
-        Gson gson;
+        final int count;
+        final Gson gson;
 
         ServerSocketAcceptedThread(Socket s, int c) {
             socket = s;
@@ -102,33 +105,46 @@ public class ServerController implements Initializable {
                 //If dataInputStream empty,
                 //this thread will be blocked by readUTF(),
                 //but not the others
-                String messageFromClient = dataInputStream.readUTF();
+                while (true) {
+                    String messageFromClient = dataInputStream.readUTF();
 
-                String newMessage = "#" + count + " from " + socket.getInetAddress()
-                        + ":" + socket.getPort() + "\n"
-                        + "Msg from client: " + messageFromClient + "\n";
+                    String newMessage = "#" + count + " from " + socket.getInetAddress()
+                            + ":" + socket.getPort() + "\n"
+                            + "Msg from client: " + messageFromClient + "\n";
+                    try {
+                        Client client = gson.fromJson(messageFromClient, Client.class);
+                        clientMap.put(client.getNickName(), this);
 
-                Client client = gson.fromJson(messageFromClient, Client.class);
-                clientMap.put(client.getNickName(), this);
-
-                Platform.runLater(() -> {
-                    statusArea.appendText(newMessage);
-                    clientListView.getItems().add(client);
-                    if (count >= 2) {
-                        Game game = startGameIfPossible();
-                        if (game != null) {
-                            String messageToSniper = gson.toJson(game.toSniper());
-                            String messageToSpotter = gson.toJson(game.toSpotter());
+                        Platform.runLater(() -> {
+                            statusArea.appendText(newMessage);
+                            clientListView.getItems().add(client);
+                            if (count >= 2) {
+                                Game game = startGameIfPossible();
+                                if (game != null) {
+                                    String messageToSniper = gson.toJson(game.toSniper());
+                                    String messageToSpotter = gson.toJson(game.toSpotter());
+                                    try {
+                                        clientMap.get(game.getSpotter().getNickName()).dataOutputStream.writeUTF(messageToSpotter);
+                                        clientMap.get(game.getSniper().getNickName()).dataOutputStream.writeUTF(messageToSniper);
+                                    } catch (IOException e) {
+                                        Logger.getLogger(ServerController.class.getName()).log(Level.SEVERE, null, e);
+                                    }
+                                    statusArea.appendText("Msg to client: " + messageToSniper + "\n");
+                                }
+                            }
+                        });
+                    } catch (Exception ignore) {
+                        Message message = gson.fromJson(messageFromClient, Message.class);
+                        Platform.runLater(() -> gameListView.getItems().stream().filter(game -> game.getId().equals(message.getGameId())).forEach(game -> {
                             try {
-                                clientMap.get(game.getSpotter().getNickName()).dataOutputStream.writeUTF(messageToSpotter);
-                                clientMap.get(game.getSniper().getNickName()).dataOutputStream.writeUTF(messageToSniper);
+                                clientMap.get(game.getSpotter().getNickName()).dataOutputStream.writeUTF(gson.toJson(message));
+                                clientMap.get(game.getSniper().getNickName()).dataOutputStream.writeUTF(gson.toJson(message));
                             } catch (IOException e) {
                                 Logger.getLogger(ServerController.class.getName()).log(Level.SEVERE, null, e);
                             }
-                            statusArea.appendText("Msg to client: " + messageToSniper + "\n");
-                        }
+                        }));
                     }
-                });
+                }
 
             } catch (IOException ex) {
                 Logger.getLogger(ServerController.class.getName()).log(Level.SEVERE, null, ex);
@@ -144,7 +160,7 @@ public class ServerController implements Initializable {
                 if (c1.getType() != c2.getType() && c1.getPreferredDifficulty() == c2.getPreferredDifficulty()) {
                     Client sniper = c1.getType() == Constants.PlayerType.SNIPER ? c1 : c2;
                     Client spotter = c1.getType() == Constants.PlayerType.SPOTTER ? c1 : c2;
-                    Game game = new Game(c1.getPreferredDifficulty(), sniper, spotter);
+                    Game game = new Game(currentId++, c1.getPreferredDifficulty(), sniper, spotter);
                     gameListView.getItems().add(game);
                     clientListView.getItems().removeAll(c1, c2);
                     return game;
@@ -162,10 +178,10 @@ public class ServerController implements Initializable {
             while (enumNetworkInterfaces.hasMoreElements()) {
                 NetworkInterface networkInterface = enumNetworkInterfaces
                         .nextElement();
-                Enumeration<InetAddress> enumInetAddress = networkInterface
+                Enumeration<InetAddress> enumINetAddress = networkInterface
                         .getInetAddresses();
-                while (enumInetAddress.hasMoreElements()) {
-                    InetAddress inetAddress = enumInetAddress.nextElement();
+                while (enumINetAddress.hasMoreElements()) {
+                    InetAddress inetAddress = enumINetAddress.nextElement();
 
                     if (inetAddress.isSiteLocalAddress()) {
                         ip += inetAddress.getHostAddress() + "\n";

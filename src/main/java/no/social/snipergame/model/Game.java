@@ -3,6 +3,8 @@ package no.social.snipergame.model;
 import javafx.animation.Timeline;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import static no.social.snipergame.util.Constants.Difficulty;
@@ -13,18 +15,24 @@ import static no.social.snipergame.util.Constants.Difficulty;
  */
 public class Game {
 
-    private Difficulty difficulty;
-    private LocalDateTime startTime;
+    private final Long id;
+
+    private final List<Message> messages = new ArrayList<>();
+
+    private final Difficulty difficulty;
+    private final LocalDateTime startTime;
     private final Person[] persons = new Person[23*16];
-    private Wind wind;
+    private final Wind wind;
     private Timeline timer;
     private int winX, winY;
     private boolean isSniper;
-    private String tile;
+    private final String tile;
 
-    private Client sniper, spotter;
+    private final Client sniper;
+    private final Client spotter;
 
-    public Game(Difficulty difficulty, Client sniper, Client spotter) {
+    public Game(Long id, Difficulty difficulty, Client sniper, Client spotter) {
+        this.id = id;
         this.sniper = sniper;
         this.spotter = spotter;
         this.difficulty = difficulty;
@@ -86,6 +94,10 @@ public class Game {
         return isSniper;
     }
 
+    public void addMessage(Message message) {
+        messages.add(message);
+    }
+
     @Override
     public String toString() {
         return difficulty + " - " + startTime;
@@ -93,5 +105,9 @@ public class Game {
 
     public String getTile() {
         return tile;
+    }
+
+    public Long getId() {
+        return id;
     }
 }

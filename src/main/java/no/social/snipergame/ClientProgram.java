@@ -20,6 +20,7 @@ public class ClientProgram extends Application {
         primaryStage.setTitle("Client - " + ManagementFactory.getRuntimeMXBean().getName());
         primaryStage.setScene(new Scene(root));
         primaryStage.show();
+        primaryStage.setResizable(false);
     }
 
     public static void main(String[] args) {

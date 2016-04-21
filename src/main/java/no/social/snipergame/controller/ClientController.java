@@ -13,13 +13,12 @@ import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.TilePane;
-import javafx.scene.paint.Color;
-import no.social.snipergame.model.Client;
-import no.social.snipergame.model.Coordinates;
-import no.social.snipergame.model.Game;
+import no.social.snipergame.model.*;
+import no.social.snipergame.network.NetworkConnection;
+import no.social.snipergame.network.SniperConnection;
+import no.social.snipergame.network.SpotterConnection;
 import no.social.snipergame.util.Constants;
 
 import java.io.DataInputStream;
@@ -56,23 +55,14 @@ public class ClientController implements Initializable  {
     @FXML private Label coordinateLabel;
     @FXML private TextField chatField;
 
-    private ImageView mark;
-
-    private Game game = null;
-
+    private Game game;
     private Client client;
-
-    private RunnableClient runnableClient;
-
     private Gson gson;
-
-    private Image scope;
-
-    private Coordinates markedCoordinates, curserCoordinates;
-
+    private Coordinates markedCoordinates, cursorCoordinates;
     private boolean sniper;
 
-    private String name = sniper ? "Sniper" : "Spotter";
+    // Connection between two clients
+    private NetworkConnection connection;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -88,21 +78,23 @@ public class ClientController implements Initializable  {
     }
 
     private void initGame() {
-        this.sniper = game.isSniper();
-        scope = new Image("/crosshair.png");
-        mark = new ImageView("/red-x.png");
-
-        // Select a random tile from the list
-        // Game window: X:24, Y:17
+        sniper = game.isSniper();
+        connection = sniper ? createSniperConnection() : createSpotterConnection();
+        try {
+            connection.startConnection();
+        } catch (Exception ignore) {
+        }
+        // Game window: X:23, Y:16
         for (int i = 0; i < 23*16; i++) {
             StackPane stackPane = new StackPane(new ImageView("/icons/" + game.getTile() + ".png"));
             if (game.getPersons()[i] != null) stackPane.getChildren().add(game.getPersons()[i].compile());
             grid.getChildren().add(stackPane);
         }
 
-        markedCoordinates = curserCoordinates =  new Coordinates(0,0);
+        markedCoordinates = cursorCoordinates =  new Coordinates(0,0);
         coordinateLabel.setText(markedCoordinates.toString());
 
+        // Sniper specific stuff
         if (sniper) {
             windLabel.setText("");
             coordinateLabel.setText("");
@@ -110,10 +102,13 @@ public class ClientController implements Initializable  {
             sendWindButton.setVisible(false);
             grid.setEffect(new ColorAdjust(0, -1, 0, 0));
         }
+        // Spotter specific stuff
         else {
             windLabel.setText(game.getWind().toString());
         }
 
+        Image scope = new Image("/crosshair.png");
+        ImageView mark = new ImageView("/red-x.png");
         grid.setCursor(new ImageCursor(scope, scope.getWidth()/2, scope.getHeight()/2));
         grid.setOnMouseMoved(event -> currentCoordinatesLabel.setText("X: " + (int) event.getX()/40 + " Y: " + (int) event.getY()/40));
         grid.setOnMouseClicked(event -> {
@@ -130,7 +125,6 @@ public class ClientController implements Initializable  {
             mark.setLayoutY(y);
             int index = y*x;
             index += x;
-            System.out.println("Index: " + index);
             ((StackPane) grid.getChildren().get((y*23) + x)).getChildren().add(mark);
         });
         gameBox.setVisible(true);
@@ -138,35 +132,62 @@ public class ClientController implements Initializable  {
 
     @FXML
     private void sendMessage() throws Exception {
-
+        Client sender, receiver;
+        if (client.getType() == Constants.PlayerType.SNIPER) {
+            sender = game.getSniper();
+            receiver = game.getSpotter();
+        } else {
+            sender = game.getSpotter();
+            receiver = game.getSniper();
+        }
+        Message message = new Message(game.getId(), sender, receiver, chatField.getText());
+        game.addMessage(message);
+        chatArea.appendText(message + "\n");
+        connection.send("MESSAGE" + gson.toJson(message));
     }
 
     @FXML
     private void sendWind() throws Exception {
+        connection.send("WIND" + gson.toJson(game.getWind()));
     }
 
     @FXML
-    private void sendCoords() throws Exception {
+    private void sendCoordinates() throws Exception {
+        connection.send("COORDINATES" + gson.toJson(markedCoordinates));
     }
 
     @FXML
     private void connect() {
-        runnableClient = new RunnableClient(ipField.getText(),
-                Integer.parseInt(portField.getText()),
-                new Client(nickNameField.getText(), typeBox.getSelectionModel().getSelectedItem(), difficultyBox.getSelectionModel().getSelectedItem()));
+        client = new Client(nickNameField.getText(), typeBox.getSelectionModel().getSelectedItem(), difficultyBox.getSelectionModel().getSelectedItem());
+        RunnableClient runnableClient = new RunnableClient(ipField.getText(),
+                Integer.parseInt(portField.getText()), client);
 
         new Thread(runnableClient).start();
         connectButton.setDisable(true);
     }
 
+    private SpotterConnection createSpotterConnection() {
+        return new SpotterConnection(Constants.SERVER_HOSTNAME, Constants.SERVER_PORT, data -> Platform.runLater(() -> processData(data.toString())));
+    }
+
+    private SniperConnection createSniperConnection() {
+        return new SniperConnection(Constants.SERVER_PORT, data -> Platform.runLater(() -> processData(data.toString())));
+    }
+
+    private void processData(String json) {
+        if (json.startsWith("WIND")) windLabel.setText(gson.fromJson(json.substring(4), Wind.class).toString());
+        else if (json.startsWith("MESSAGE")) chatArea.appendText(gson.fromJson(json.substring(7), Message.class).toString() + "\n");
+        else if (json.startsWith("COORDINATES")) coordinateLabel.setText(gson.fromJson(json.substring(11), Coordinates.class).toString());
+    }
+
     private class RunnableClient implements Runnable{
 
-        String dstAddress;
-        int dstPort;
-        Client client;
+        final String dstAddress;
+        final int dstPort;
+        final Client client;
 
-        RunnableClient(String addr, int port, Client client) {
-            dstAddress = addr;
+        RunnableClient(String dstAddress, int port, Client client) {
+            this.dstAddress = dstAddress;
             dstPort = port;
             this.client = client;
         }
@@ -183,13 +204,11 @@ public class ClientController implements Initializable  {
                 dataOutputStream = new DataOutputStream(socket.getOutputStream());
                 dataInputStream = new DataInputStream(socket.getInputStream());
 
-                while (true) {
-                    if (client != null) {
-                        dataOutputStream.writeUTF(gson.toJson(client));
-                    }
-                    Game object = gson.fromJson(dataInputStream.readUTF(), Game.class);
-                    System.out.println("Game received");
-                    game = object;
+                if (client != null) {
+                    dataOutputStream.writeUTF(gson.toJson(client));
+                }
+                if (game == null) {
+                    game = gson.fromJson(dataInputStream.readUTF(), Game.class);
                     Platform.runLater(ClientController.this::initGame);
                 }
 

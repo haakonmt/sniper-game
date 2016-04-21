@@ -9,17 +9,29 @@ import java.util.Date;
  */
 public class Message {
 
-    private final String sender, text;
+    private final Long gameId;
+    private final Client receiver, sender;
+    private final String text;
     private final Date timeStamp;
 
-    public Message(String sender, String text) {
+    public Message(Long gameId, Client sender, Client receiver, String text) {
+        this.gameId = gameId;
         this.sender = sender;
+        this.receiver = receiver;
         this.text = text;
         timeStamp = new Date();
     }
 
     @Override
     public String toString() {
-        return "[" + new SimpleDateFormat("dd.MM.yy - HH:MM:ss").format(timeStamp) + "] " + sender + ": " + text;
+        return "[" + new SimpleDateFormat("HH:MM:ss").format(timeStamp) + "] " + sender.getNickName() + ": " + text;
+    }
+
+    public Client getReceiver() {
+        return receiver;
+    }
+
+    public Long getGameId() {
+        return gameId;
     }
 }

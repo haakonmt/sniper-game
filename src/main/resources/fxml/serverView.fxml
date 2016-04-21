@@ -1,84 +1,69 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.*?>
-<?import javafx.scene.text.*?>
 <?import javafx.scene.control.*?>
-<?import java.lang.*?>
 <?import javafx.scene.layout.*?>
-
-<HBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="no.social.snipergame.controller.ServerController">
-   <children>
-      <TabPane prefHeight="400.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE">
-        <tabs>
-          <Tab text="Clients">
-               <content>
-                  <ListView fx:id="clientListView" prefHeight="200.0" prefWidth="200.0">
-                     <padding>
-                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                     </padding>
-                  </ListView>
-               </content>
-          </Tab>
-          <Tab text="Games">
-               <content>
-                  <ListView fx:id="gameListView" prefHeight="200.0" prefWidth="200.0">
-                     <padding>
-                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                     </padding>
-                  </ListView>
-               </content>
-          </Tab>
-        </tabs>
-         <HBox.margin>
-            <Insets />
-         </HBox.margin>
-      </TabPane>
-      <VBox>
-         <children>
-            <ToolBar prefHeight="29.0" prefWidth="445.0" />
-            <HBox alignment="CENTER" prefHeight="58.0" prefWidth="423.0" spacing="20.0">
-               <children>
-                  <Label prefWidth="100.0" text="IP:">
-                     <font>
-                        <Font size="30.0" />
-                     </font>
-                  </Label>
-                  <Label fx:id="ipLabel" prefHeight="45.0" prefWidth="280.0">
-                     <font>
-                        <Font size="15.0" />
-                     </font>
-                  </Label>
-               </children>
-            </HBox>
-            <HBox alignment="CENTER" prefHeight="69.0" prefWidth="423.0" spacing="20.0">
-               <children>
-                  <Label prefWidth="100.0" text="Port:">
-                     <font>
-                        <Font size="30.0" />
-                     </font>
-                  </Label>
-                  <Label fx:id="portLabel" prefWidth="280.0">
-                     <font>
-                        <Font size="30.0" />
-                     </font>
-                  </Label>
-               </children>
-            </HBox>
-            <HBox alignment="CENTER">
-               <children>
-                  <CheckBox fx:id="welcomeCheckBox" mnemonicParsing="false" text="Send welcome on connect" VBox.vgrow="ALWAYS" selected="true">
-                     <VBox.margin>
-                        <Insets />
-                     </VBox.margin>
-                  </CheckBox>
-               </children>
-            </HBox>
-            <TextArea fx:id="statusArea" prefHeight="206.0" prefWidth="403.0">
-               <VBox.margin>
-                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-               </VBox.margin>
-            </TextArea>
-         </children>
-      </VBox>
-   </children>
+<?import javafx.scene.text.Font?>
+<HBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0"
+      prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="no.social.snipergame.controller.ServerController">
+    <TabPane prefHeight="400.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE">
+        <HBox.margin>
+            <Insets/>
+        </HBox.margin>
+        <Tab text="Clients">
+            <ListView fx:id="clientListView" prefHeight="200.0" prefWidth="200.0">
+                <padding>
+                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                </padding>
+            </ListView>
+        </Tab>
+        <Tab text="Games">
+            <ListView fx:id="gameListView" prefHeight="200.0" prefWidth="200.0">
+                <padding>
+                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                </padding>
+            </ListView>
+        </Tab>
+    </TabPane>
+    <VBox>
+        <ToolBar prefHeight="29.0" prefWidth="445.0"/>
+        <HBox alignment="CENTER" prefHeight="58.0" prefWidth="423.0" spacing="20.0">
+            <Label prefWidth="100.0" text="IP:">
+                <font>
+                    <Font size="30.0"/>
+                </font>
+            </Label>
+            <Label fx:id="ipLabel" prefHeight="45.0" prefWidth="280.0">
+                <font>
+                    <Font size="15.0"/>
+                </font>
+            </Label>
+        </HBox>
+        <HBox alignment="CENTER" prefHeight="69.0" prefWidth="423.0" spacing="20.0">
+            <Label prefWidth="100.0" text="Port:">
+                <font>
+                    <Font size="30.0"/>
+                </font>
+            </Label>
+            <Label fx:id="portLabel" prefWidth="280.0">
+                <font>
+                    <Font size="30.0"/>
+                </font>
+            </Label>
+        </HBox>
+        <HBox alignment="CENTER">
+            <CheckBox fx:id="welcomeCheckBox" mnemonicParsing="false" text="Send welcome on connect"
+                      VBox.vgrow="ALWAYS" selected="true">
+                <VBox.margin>
+                    <Insets/>
+                </VBox.margin>
+            </CheckBox>
+        </HBox>
+        <TextArea fx:id="statusArea" prefHeight="206.0" prefWidth="403.0">
+            <VBox.margin>
+                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+            </VBox.margin>
+        </TextArea>
+    </VBox>
 </HBox>
