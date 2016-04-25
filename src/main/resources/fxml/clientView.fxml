@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
@@ -36,64 +35,79 @@
             </font>
         </Label>
     </ToolBar>
-    <HBox fx:id="gameBox" visible="false" prefHeight="680.0" prefWidth="1274.0" spacing="10.0">
-        <padding>
-            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
-        </padding>
-        <VBox prefHeight="640.0" prefWidth="342.0" spacing="10.0">
-            <HBox prefHeight="12.0" prefWidth="300.0" spacing="10.0">
-                <Label prefHeight="25.0" prefWidth="69.0" text="Wind:">
-                    <font>
-                        <Font size="16.0"/>
-                    </font>
-                </Label>
-                <Label fx:id="windLabel" prefHeight="21.0" prefWidth="165.0">
-                    <font>
-                        <Font size="16.0"/>
-                    </font>
-                </Label>
-                <Button fx:id="sendWindButton" mnemonicParsing="false" onAction="#sendWind"
-                        prefHeight="25.0" prefWidth="96.0" text="Send wind"/>
-            </HBox>
-            <HBox prefHeight="20.0" prefWidth="300.0" spacing="10.0">
-                <Label prefHeight="25.0" prefWidth="109.0" text="Coordinates:">
-                    <font>
-                        <Font size="16.0"/>
-                    </font>
-                </Label>
-                <Label fx:id="coordinateLabel" prefHeight="25.0" prefWidth="79.0">
-                    <font>
-                        <Font size="15.0"/>
-                    </font>
-                </Label>
-                <Button fx:id="sendCoordinatesButton" alignment="CENTER" mnemonicParsing="false"
-                        onAction="#sendCoordinates" prefHeight="25.0" prefWidth="117.0"
-                        text="Send coordinates"/>
-            </HBox>
-            <HBox prefHeight="7.0" prefWidth="300.0" spacing="10.0">
-                <Label prefHeight="25.0" prefWidth="42.0" text="Time:">
-                    <font>
-                        <Font size="16.0"/>
-                    </font>
-                </Label>
-                <Label fx:id="timeLabel" prefHeight="25.0" prefWidth="115.0">
-                    <font>
-                        <Font size="16.0"/>
-                    </font>
-                </Label>
-                <Label fx:id="currentCoordinatesLabel" alignment="CENTER_RIGHT" contentDisplay="RIGHT"
-                       prefHeight="25.0" prefWidth="115.0">
-                    <font>
-                        <Font size="16.0"/>
-                    </font>
-                </Label>
-            </HBox>
-            <TextArea fx:id="chatArea" editable="false" prefHeight="490.0" prefWidth="323.0"/>
-            <HBox prefHeight="66.0" prefWidth="310.0" spacing="10.0">
-                <TextField fx:id="chatField" onAction="#sendMessage" prefHeight="25.0" prefWidth="237.0"/>
-                <Button mnemonicParsing="false" onAction="#sendMessage" text="Submit"/>
-            </HBox>
-        </VBox>
-        <TilePane fx:id="grid" prefHeight="680.0" prefWidth="960.0"/>
-    </HBox>
+    <StackPane>
+        <HBox fx:id="gameBox" prefHeight="680.0" prefWidth="1274.0" spacing="10.0" visible="false">
+            <padding>
+                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
+            </padding>
+            <VBox prefHeight="640.0" prefWidth="342.0" spacing="10.0">
+                <HBox prefHeight="12.0" prefWidth="300.0" spacing="10.0">
+                    <Label prefHeight="25.0" prefWidth="69.0" text="Wind:">
+                        <font>
+                            <Font size="16.0"/>
+                        </font>
+                    </Label>
+                    <Label fx:id="windLabel" prefHeight="21.0" prefWidth="165.0">
+                        <font>
+                            <Font size="16.0"/>
+                        </font>
+                    </Label>
+                    <Button fx:id="sendWindButton" mnemonicParsing="false" onAction="#sendWind"
+                            prefHeight="25.0" prefWidth="96.0" text="Send wind"/>
+                </HBox>
+                <HBox prefHeight="20.0" prefWidth="300.0" spacing="10.0">
+                    <Label prefHeight="25.0" prefWidth="109.0" text="Coordinates:">
+                        <font>
+                            <Font size="16.0"/>
+                        </font>
+                    </Label>
+                    <Label fx:id="coordinateLabel" prefHeight="25.0" prefWidth="79.0">
+                        <font>
+                            <Font size="15.0"/>
+                        </font>
+                    </Label>
+                    <StackPane>
+                        <Button fx:id="sendCoordinatesButton" alignment="CENTER"
+                                mnemonicParsing="false" onAction="#sendCoordinates"
+                                prefHeight="25.0" prefWidth="117.0" text="Send coordinates"/>
+                        <Button fx:id="fireButton" alignment="CENTER" mnemonicParsing="false"
+                                onAction="#fire" prefHeight="25.0" prefWidth="117.0" text="Fire"/>
+                    </StackPane>
+                </HBox>
+                <HBox prefHeight="7.0" prefWidth="300.0" spacing="10.0">
+                    <Label prefHeight="25.0" prefWidth="42.0" text="Time:">
+                        <font>
+                            <Font size="16.0"/>
+                        </font>
+                    </Label>
+                    <Label fx:id="timeLabel" prefHeight="25.0" prefWidth="115.0">
+                        <font>
+                            <Font size="16.0"/>
+                        </font>
+                    </Label>
+                    <Label fx:id="currentCoordinatesLabel" alignment="CENTER_RIGHT"
+                           contentDisplay="RIGHT" prefHeight="25.0" prefWidth="115.0">
+                        <font>
+                            <Font size="16.0"/>
+                        </font>
+                    </Label>
+                </HBox>
+                <VBox fx:id="textBox">
+                    <TextArea fx:id="chatArea" editable="false" prefHeight="490.0" prefWidth="323.0"/>
+                </VBox>
+                <HBox prefHeight="66.0" prefWidth="310.0" spacing="10.0">
+                    <TextField fx:id="chatField" onAction="#sendMessage" prefHeight="25.0"
+                               prefWidth="237.0"/>
+                    <Button mnemonicParsing="false" onAction="#sendMessage" text="Submit"/>
+                </HBox>
+            </VBox>
+            <TilePane fx:id="grid" prefHeight="680.0" prefWidth="960.0"/>
+        </HBox>
+        <Label fx:id="gameOverLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="500.0"
+               prefWidth="1000.0" visible="false">
+            <font>
+                <Font size="180.0"/>
+            </font>
+        </Label>
+    </StackPane>
 </VBox>

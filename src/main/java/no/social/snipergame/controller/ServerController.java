@@ -5,13 +5,11 @@ import com.google.gson.GsonBuilder;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import no.social.snipergame.model.Client;
 import no.social.snipergame.model.Game;
-import no.social.snipergame.model.Message;
 import no.social.snipergame.util.Constants;
 
 import java.io.DataInputStream;
@@ -30,7 +28,6 @@ public class ServerController implements Initializable {
 
     private static Long currentId = 1L;
 
-    @FXML private CheckBox welcomeCheckBox;
     @FXML private ListView<Client> clientListView;
     @FXML private ListView<Game> gameListView;
     @FXML private Label ipLabel;
@@ -56,7 +53,6 @@ public class ServerController implements Initializable {
 
         static final int SocketServerPORT = 8080;
         int count = 0;
-        Gson gson = new GsonBuilder().create();
 
         @Override
         public void run() {
@@ -105,46 +101,33 @@ public class ServerController implements Initializable {
                 //If dataInputStream empty,
                 //this thread will be blocked by readUTF(),
                 //but not the others
-                while (true) {
-                    String messageFromClient = dataInputStream.readUTF();
+                String messageFromClient = dataInputStream.readUTF();
 
-                    String newMessage = "#" + count + " from " + socket.getInetAddress()
-                            + ":" + socket.getPort() + "\n"
-                            + "Msg from client: " + messageFromClient + "\n";
-                    try {
-                        Client client = gson.fromJson(messageFromClient, Client.class);
-                        clientMap.put(client.getNickName(), this);
+                String newMessage = "#" + count + " from " + socket.getInetAddress()
+                        + ":" + socket.getPort() + "\n"
+                        + "Msg from client: " + messageFromClient + "\n";
 
-                        Platform.runLater(() -> {
-                            statusArea.appendText(newMessage);
-                            clientListView.getItems().add(client);
-                            if (count >= 2) {
-                                Game game = startGameIfPossible();
-                                if (game != null) {
-                                    String messageToSniper = gson.toJson(game.toSniper());
-                                    String messageToSpotter = gson.toJson(game.toSpotter());
-                                    try {
-                                        clientMap.get(game.getSpotter().getNickName()).dataOutputStream.writeUTF(messageToSpotter);
-                                        clientMap.get(game.getSniper().getNickName()).dataOutputStream.writeUTF(messageToSniper);
-                                    } catch (IOException e) {
-                                        Logger.getLogger(ServerController.class.getName()).log(Level.SEVERE, null, e);
-                                    }
-                                    statusArea.appendText("Msg to client: " + messageToSniper + "\n");
-                                }
-                            }
-                        });
-                    } catch (Exception ignore) {
-                        Message message = gson.fromJson(messageFromClient, Message.class);
-                        Platform.runLater(() -> gameListView.getItems().stream().filter(game -> game.getId().equals(message.getGameId())).forEach(game -> {
+                Client client = gson.fromJson(messageFromClient, Client.class);
+                clientMap.put(client.getNickName(), this);
+
+                Platform.runLater(() -> {
+                    statusArea.appendText(newMessage);
+                    clientListView.getItems().add(client);
+                    if (count >= 2) {
+                        Game game = startGameIfPossible();
+                        if (game != null) {
+                            String messageToSniper = gson.toJson(game.toSniper());
+                            String messageToSpotter = gson.toJson(game.toSpotter());
                             try {
-                                clientMap.get(game.getSpotter().getNickName()).dataOutputStream.writeUTF(gson.toJson(message));
-                                clientMap.get(game.getSniper().getNickName()).dataOutputStream.writeUTF(gson.toJson(message));
+                                clientMap.get(game.getSpotter().getNickName()).dataOutputStream.writeUTF(messageToSpotter);
+                                clientMap.get(game.getSniper().getNickName()).dataOutputStream.writeUTF(messageToSniper);
                             } catch (IOException e) {
                                 Logger.getLogger(ServerController.class.getName()).log(Level.SEVERE, null, e);
                             }
-                        }));
+                            statusArea.appendText("Msg to client: " + messageToSniper + "\n");
+                        }
                     }
-                }
+                });
 
             } catch (IOException ex) {
                 Logger.getLogger(ServerController.class.getName()).log(Level.SEVERE, null, ex);

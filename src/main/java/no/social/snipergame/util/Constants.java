@@ -7,7 +7,7 @@ package no.social.snipergame.util;
 public class Constants {
 
     public static final int SERVER_PORT = 1337;
-    public static final String SERVER_HOSTNAME = "localhost";
+    public static final String SERVER_HOSTNAME = "10.24.22.233";
 
     public enum Difficulty {
         EASY, MEDIUM, HARD, VERY_HARD

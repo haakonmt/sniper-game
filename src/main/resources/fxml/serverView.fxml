@@ -52,14 +52,6 @@
                 </font>
             </Label>
         </HBox>
-        <HBox alignment="CENTER">
-            <CheckBox fx:id="welcomeCheckBox" mnemonicParsing="false" text="Send welcome on connect"
-                      VBox.vgrow="ALWAYS" selected="true">
-                <VBox.margin>
-                    <Insets/>
-                </VBox.margin>
-            </CheckBox>
-        </HBox>
         <TextArea fx:id="statusArea" prefHeight="206.0" prefWidth="403.0">
             <VBox.margin>
                 <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
