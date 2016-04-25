@@ -61,6 +61,7 @@ public class ClientController implements Initializable  {
     @FXML private Label currentCoordinatesLabel;
     @FXML private Button sendWindButton;
     @FXML private Button sendCoordinatesButton;
+    @FXML private Button fireButton;
     @FXML private Label timeLabel;
     @FXML private TextArea chatArea;
     @FXML private Label windLabel;
@@ -121,11 +122,13 @@ public class ClientController implements Initializable  {
 
         markedCoordinates =  new Coordinates(0,0);
         coordinateLabel.setText(markedCoordinates.toString());
+        fireButton.setVisible(false);
 
         // Sniper specific stuff
         if (sniper) {
             windLabel.setText("");
             coordinateLabel.setText("");
+            fireButton.setVisible(true);
             sendCoordinatesButton.setVisible(false);
             sendWindButton.setVisible(false);
             grid.setEffect(new ColorAdjust(0, -1, 0, 0));
@@ -193,6 +196,11 @@ public class ClientController implements Initializable  {
     @FXML
     private void sendCoordinates() throws Exception {
         connection.send("COORDINATES" + gson.toJson(markedCoordinates));
+    }
+    
+    @FXML
+    private void fire() throws Exception {
+        //TODO: Eliminate target
     }
 
     @FXML
