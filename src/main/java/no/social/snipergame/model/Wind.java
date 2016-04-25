@@ -2,6 +2,8 @@ package no.social.snipergame.model;
 
 import no.social.snipergame.util.Constants.Direction;
 
+import java.util.Random;
+
 import static no.social.snipergame.util.Constants.Direction.*;
 
 /**
@@ -19,7 +21,7 @@ public class Wind {
     }
 
     public static Wind random() {
-        return new Wind((int) ((Math.random() < 0.5 ? 10 : 100) * Math.random()), pickDirection(Math.random()));
+        return new Wind(new Random().nextInt(4), pickDirection(Math.random()));
     }
 
     private static Direction pickDirection(double random) {

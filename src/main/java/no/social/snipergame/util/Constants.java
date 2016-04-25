@@ -8,6 +8,7 @@ public class Constants {
 
     public static final int SERVER_PORT = 1337;
     public static final String SERVER_HOSTNAME = "10.24.22.233";
+    public static final int BOARD_SIZE = 23*16;
 
     public enum Difficulty {
         EASY, MEDIUM, HARD, VERY_HARD
@@ -23,7 +24,7 @@ public class Constants {
 
         @Override
         public String toString() {
-            String[] parts = name().split(" ");
+            String[] parts = name().split("_");
             return String.valueOf(parts[0].charAt(0)) + (parts.length == 2 ? String.valueOf(parts[1].charAt(0)) : "");
         }
     }

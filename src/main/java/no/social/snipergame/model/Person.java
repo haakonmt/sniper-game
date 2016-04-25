@@ -15,6 +15,7 @@ import static no.social.snipergame.model.asset.CharacterAsset.Sex.MALE;
  */
 public class Person {
 
+    private static final Random random = new Random();
     private static final String[]
             MALE_FIRST_NAMES = new String[] {
             "James", "John", "Robert", "Michael", "William", "Steven", "Nicholas", "Gary",
@@ -35,21 +36,19 @@ public class Person {
                     "Allen", "Stewart", "Sanchez", "Scott", "Green"
             };
 
-    private final String firstName, lastName, base, hair, shirt, pants, shoes;
-    private final Sex sex;
-    private static final Random random = new Random();
+    private final Sex sex = random.nextBoolean() ? MALE : FEMALE;
+    private final String
+            firstName = getRandomStringFrom(sex == MALE ? MALE_FIRST_NAMES : FEMALE_FIRST_NAMES),
+            lastName = getRandomStringFrom(LAST_NAMES),
+            base = new Base(sex).getAssetId(),
+            hair = new Hair(sex).getAssetId(),
+            shirt = new Shirt(sex).getAssetId(),
+            pants = new Pants(sex).getAssetId(),
+            shoes = new Shoes(sex).getAssetId();
     private final boolean target;
 
     public Person(boolean target) {
         this.target = target;
-        sex = random.nextBoolean() ? MALE : FEMALE;
-        base = new Base(sex).getAssetId();
-        hair = new Hair(sex).getAssetId();
-        shirt = new Shirt(sex).getAssetId();
-        pants = new Pants(sex).getAssetId();
-        shoes = new Shoes(sex).getAssetId();
-        firstName = getRandomStringFrom(sex == MALE ? MALE_FIRST_NAMES : FEMALE_FIRST_NAMES);
-        lastName = getRandomStringFrom(LAST_NAMES);
     }
 
     public String getFirstName() {

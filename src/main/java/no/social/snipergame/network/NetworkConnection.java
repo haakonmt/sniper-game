@@ -14,15 +14,15 @@ import java.util.function.Consumer;
  */
 public abstract class NetworkConnection {
 
-    private ConnectionThread connectionThread = new ConnectionThread();
-    private Consumer<Serializable> onReceiveCallback;
+    private final ConnectionThread connectionThread = new ConnectionThread();
+    private final Consumer<Serializable> onReceiveCallback;
 
-    public NetworkConnection(Consumer<Serializable> onReceiveCallback) {
+    NetworkConnection(Consumer<Serializable> onReceiveCallback) {
         this.onReceiveCallback = onReceiveCallback;
         connectionThread.setDaemon(true);
     }
 
-    public void startConnection() throws Exception {
+    public void startConnection() {
         connectionThread.start();
     }
 

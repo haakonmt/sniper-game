@@ -12,7 +12,7 @@ import java.util.Random;
  */
 public abstract class CharacterAsset extends ImageView {
 
-    String id = "";
+    private String id = "";
 
     public enum Sex {
         MALE, FEMALE

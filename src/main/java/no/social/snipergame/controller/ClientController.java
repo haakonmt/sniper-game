@@ -45,8 +45,9 @@ import java.util.logging.Logger;
  */
 public class ClientController implements Initializable  {
 
+    @FXML private Label reviewLabel;
+    @FXML private Label waitingLabel;
     @FXML private VBox textBox;
-    @FXML private Button fireButton;
     @FXML private Label gameOverLabel;
     @FXML private Button connectButton;
     @FXML private HBox gameBox;
@@ -72,9 +73,6 @@ public class ClientController implements Initializable  {
     private Client client;
     private Gson gson;
     private Coordinates markedCoordinates;
-    private boolean sniper;
-
-    private Timeline timer;
 
     // Connection between two clients
     private NetworkConnection connection;
@@ -93,7 +91,8 @@ public class ClientController implements Initializable  {
     }
 
     private void initGame() {
-        sniper = game.isSniper();
+        waitingLabel.setVisible(false);
+        boolean sniper = game.isSniper();
         if (connection == null) {
             connection = sniper ? createSniperConnection() : createSpotterConnection();
             try {
@@ -110,7 +109,7 @@ public class ClientController implements Initializable  {
         }
 
         long milliStart = game.getStartMillis();
-        timer = new Timeline(new KeyFrame(Duration.millis(1), event -> {
+        Timeline timer = new Timeline(new KeyFrame(Duration.millis(1), event -> {
             long millis = System.currentTimeMillis() - milliStart;
             long minutes = TimeUnit.MILLISECONDS.toMinutes(millis);
             long seconds = TimeUnit.MILLISECONDS.toSeconds(millis) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis));
@@ -197,11 +196,6 @@ public class ClientController implements Initializable  {
     private void sendCoordinates() throws Exception {
         connection.send("COORDINATES" + gson.toJson(markedCoordinates));
     }
-    
-    @FXML
-    private void fire() throws Exception {
-        //TODO: Eliminate target
-    }
 
     @FXML
     private void connect() {
@@ -211,18 +205,53 @@ public class ClientController implements Initializable  {
                 Integer.parseInt(portField.getText()), client);
 
         new Thread(runnableClient).start();
+        waitingLabel.setVisible(true);
+        Timeline timer = new Timeline(new KeyFrame(Duration.millis(500), event -> {
+            String wlText = waitingLabel.getText();
+            if (wlText.endsWith("...")) wlText = wlText.substring(0, wlText.length()-3);
+            else wlText += ".";
+            waitingLabel.setText(wlText);
+        }));
+        timer.setCycleCount(Animation.INDEFINITE);
+        timer.play();
         connectButton.setDisable(true);
     }
 
     @FXML
     private void fire() throws Exception {
-        boolean isWon = markedCoordinates.getX() == game.getWinX() && markedCoordinates.getY() == game.getWinY();
+        int firedX = markedCoordinates.getX(), firedY = markedCoordinates.getY();
+        Wind wind = game.getWind();
+        int winX = game.getWinX(), winY = game.getWinY();
+        switch (wind.getDirection()) {
+            case NORTH: winY += wind.getSpeed(); break;
+            case SOUTH: winY -= wind.getSpeed(); break;
+            case EAST: winX -= wind.getSpeed(); break;
+            case WEST: winX += wind.getSpeed(); break;
+            case NORTH_EAST:
+                winX -= wind.getSpeed();
+                winY += wind.getSpeed();
+                break;
+            case NORTH_WEST:
+                winX += wind.getSpeed();
+                winY += wind.getSpeed();
+                break;
+            case SOUTH_EAST:
+                winX -= wind.getSpeed();
+                winY -= wind.getSpeed();
+                break;
+            case SOUTH_WEST:
+                winX += wind.getSpeed();
+                winY -= wind.getSpeed();
+                break;
+        }
+        System.out.println(winX + " " + winY);
+        boolean isWon = (firedX == winX && firedY == winY);
         handleGameFinished(isWon);
         connection.send("GAME_FINISHED" + String.valueOf(isWon));
     }
 
     private SpotterConnection createSpotterConnection() {
-        return new SpotterConnection(Constants.SERVER_HOSTNAME, Constants.SERVER_PORT, data -> Platform.runLater(() -> processData(data.toString())));
+        return new SpotterConnection(ipField.getText(), Constants.SERVER_PORT, data -> Platform.runLater(() -> processData(data.toString())));
     }
 
     private SniperConnection createSniperConnection() {
@@ -243,11 +272,10 @@ public class ClientController implements Initializable  {
     }
 
     private void handleGameFinished(boolean isWon) {
-        game.setGameOver(true);
         game.setWon(isWon);
         gameBox.setVisible(false);
         gameOverLabel.setVisible(true);
-        gameOverLabel.setText(game.isWon() ? "You won!" : "You lost..");
+        gameOverLabel.setText((game.isWon() ? "You won!" : "You lost..") + "\n" + timeLabel.getText());
         Task<Void> sleeper = new Task<Void>() {
             @Override
             protected Void call() throws Exception {
@@ -257,7 +285,13 @@ public class ClientController implements Initializable  {
         };
         sleeper.setOnSucceeded(event -> {
             gameOverLabel.setVisible(false);
-            //TODO: Show questionnaire here
+            reviewLabel.setVisible(true);
+            reviewLabel.setText("Take a moment to reflect on your performance and answer these questions for yourself." +
+                    "\n1. Did you win? If yes, why? If no, why not?"
+                    + "\n2. Were there issues due to miscommunications?"
+                    + "\n3. Could you have been done faster?"
+                    + "\n4. If you played it a second time around, do you think you could have done better?"
+                    + "\n5. What part of your communication could be improved?");
         });
         new Thread(sleeper).start();
     }

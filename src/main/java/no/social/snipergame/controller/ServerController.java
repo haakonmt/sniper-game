@@ -29,7 +29,6 @@ public class ServerController implements Initializable {
     private static Long currentId = 1L;
 
     @FXML private ListView<Client> clientListView;
-    @FXML private ListView<Game> gameListView;
     @FXML private Label ipLabel;
     @FXML private Label portLabel;
     @FXML private TextArea statusArea;
@@ -143,10 +142,8 @@ public class ServerController implements Initializable {
                 if (c1.getType() != c2.getType() && c1.getPreferredDifficulty() == c2.getPreferredDifficulty()) {
                     Client sniper = c1.getType() == Constants.PlayerType.SNIPER ? c1 : c2;
                     Client spotter = c1.getType() == Constants.PlayerType.SPOTTER ? c1 : c2;
-                    Game game = new Game(currentId++, c1.getPreferredDifficulty(), sniper, spotter);
-                    gameListView.getItems().add(game);
                     clientListView.getItems().removeAll(c1, c2);
-                    return game;
+                    return new Game(currentId++, c1.getPreferredDifficulty(), sniper, spotter);
                 }
             }
         }

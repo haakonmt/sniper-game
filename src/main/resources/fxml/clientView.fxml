@@ -109,5 +109,17 @@
                 <Font size="180.0"/>
             </font>
         </Label>
+        <Label fx:id="waitingLabel" prefHeight="120.0" prefWidth="900.0" text="Waiting for other player..."
+               visible="false">
+            <font>
+                <Font size="80.0"/>
+            </font>
+        </Label>
+        <Label fx:id="reviewLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="500.0" prefWidth="900.0"
+               visible="false">
+            <font>
+                <Font size="16.0"/>
+            </font>
+        </Label>
     </StackPane>
 </VBox>

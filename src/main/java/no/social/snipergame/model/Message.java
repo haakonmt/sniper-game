@@ -26,12 +26,4 @@ public class Message {
     public String toString() {
         return "[" + new SimpleDateFormat("HH:MM:ss").format(timeStamp) + "] " + sender.getNickName() + ": " + text;
     }
-
-    public Client getReceiver() {
-        return receiver;
-    }
-
-    public Long getGameId() {
-        return gameId;
-    }
 }

@@ -1,33 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.*?>
 <HBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0"
       prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="no.social.snipergame.controller.ServerController">
-    <TabPane prefHeight="400.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE">
-        <HBox.margin>
-            <Insets/>
-        </HBox.margin>
-        <Tab text="Clients">
-            <ListView fx:id="clientListView" prefHeight="200.0" prefWidth="200.0">
-                <padding>
-                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
-                </padding>
-            </ListView>
-        </Tab>
-        <Tab text="Games">
-            <ListView fx:id="gameListView" prefHeight="200.0" prefWidth="200.0">
-                <padding>
-                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
-                </padding>
-            </ListView>
-        </Tab>
-    </TabPane>
+    <VBox alignment="CENTER">
+        <Label prefHeight="44.0" prefWidth="148.0" text="Unmatched clients">
+            <VBox.margin>
+                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+            </VBox.margin>
+            <font>
+                <Font size="18.0"/>
+            </font>
+        </Label>
+        <ListView fx:id="clientListView" prefHeight="333.0" prefWidth="142.0">
+            <VBox.margin>
+                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+            </VBox.margin>
+        </ListView>
+    </VBox>
     <VBox>
-        <ToolBar prefHeight="29.0" prefWidth="445.0"/>
         <HBox alignment="CENTER" prefHeight="58.0" prefWidth="423.0" spacing="20.0">
             <Label prefWidth="100.0" text="IP:">
                 <font>
@@ -52,7 +47,7 @@
                 </font>
             </Label>
         </HBox>
-        <TextArea fx:id="statusArea" prefHeight="206.0" prefWidth="403.0">
+        <TextArea fx:id="statusArea" prefHeight="272.0" prefWidth="403.0">
             <VBox.margin>
                 <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
             </VBox.margin>

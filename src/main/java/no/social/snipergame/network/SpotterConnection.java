@@ -9,8 +9,8 @@ import java.util.function.Consumer;
  */
 public class SpotterConnection extends NetworkConnection {
 
-    private String ip;
-    private int port;
+    private final String ip;
+    private final int port;
 
     public SpotterConnection(String ip, int port, Consumer<Serializable> onReceiveCallback) {
         super(onReceiveCallback);

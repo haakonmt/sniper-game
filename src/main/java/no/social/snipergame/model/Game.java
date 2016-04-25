@@ -3,6 +3,7 @@ package no.social.snipergame.model;
 import java.time.LocalDateTime;
 import java.util.Random;
 
+import static no.social.snipergame.util.Constants.BOARD_SIZE;
 import static no.social.snipergame.util.Constants.Difficulty;
 
 /**
@@ -15,16 +16,15 @@ public class Game {
 
     private final Difficulty difficulty;
     private final LocalDateTime startTime;
-    private final Person[] persons = new Person[23*16];
+    private final Person[] persons = new Person[BOARD_SIZE];
     private Person targetPerson;
     private final Wind wind;
     private int winX, winY;
-    private boolean isSniper, gameOver = false, won = false;
+    private boolean isSniper, won = false;
     private final String tile;
-    private long startMillis;
+    private final long startMillis;
 
-    private final Client sniper;
-    private final Client spotter;
+    private final Client sniper, spotter;
 
     public Game(Long id, Difficulty difficulty, Client sniper, Client spotter) {
         this.id = id;
@@ -39,27 +39,13 @@ public class Game {
         for (int i = 0; i < persons.length; i++) {
             if (i == target) {
                 winY = i/23;
-                winX = i % 23;
+                winX = i%23;
                 System.out.println(winX + " " + winY);
-                persons[i] = new Person(true);
-                targetPerson = persons[i];
+                persons[i] = targetPerson = new Person(true);
             }
             else persons[i] = random.nextBoolean() ? new Person(false) : null;
         }
         tile = new String[]{"brick", "desert", "grass", "ground", "ground2"}[random.nextInt(5)];
-
-        /*
-        long milliStart = System.currentTimeMillis();
-        timer = new Timeline(new KeyFrame(Duration.millis(1), event -> {
-            long millis = System.currentTimeMillis() - milliStart;
-            long minutes = TimeUnit.MILLISECONDS.toMinutes(millis);
-            long seconds = TimeUnit.MILLISECONDS.toSeconds(millis) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis));
-            millis -= TimeUnit.SECONDS.toMillis(TimeUnit.MILLISECONDS.toSeconds(millis));
-            String sendThisSomewhere = String.format("%d:%02d:%03d", minutes, seconds, millis);
-        }));
-        timer.setCycleCount(Animation.INDEFINITE);
-        timer.play();
-        */
     }
 
     public Person[] getPersons() {
@@ -76,10 +62,6 @@ public class Game {
 
     public Wind getWind() {
         return wind;
-    }
-
-    public Difficulty getDifficulty() {
-        return difficulty;
     }
 
     public Game toSniper() {
@@ -117,10 +99,6 @@ public class Game {
         return winY;
     }
 
-    public void setGameOver(boolean gameOver) {
-        this.gameOver = gameOver;
-    }
-
     public boolean isWon() {
         return won;
     }
@@ -131,10 +109,6 @@ public class Game {
 
     public long getStartMillis() {
         return startMillis;
-    }
-
-    public void setStartMillis(long startMillis) {
-        this.startMillis = startMillis;
     }
 
     public Person getTargetPerson() {

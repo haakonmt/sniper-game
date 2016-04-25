@@ -9,7 +9,7 @@ import java.util.function.Consumer;
  */
 public class SniperConnection extends NetworkConnection {
 
-    private int port;
+    private final int port;
 
     public SniperConnection(int port, Consumer<Serializable> onReceiveCallback) {
         super(onReceiveCallback);
