@@ -69,7 +69,11 @@
                 <Button fx:id="sendCoordinatesButton" alignment="CENTER" mnemonicParsing="false"
                         onAction="#sendCoordinates" prefHeight="25.0" prefWidth="117.0"
                         text="Send coordinates"/>
+                <Button fx:id="fireButton" alignment="CENTER" mnemonicParsing="false"
+                        onAction="#fire" prefHeight="25.0" prefWidth="117.0"
+                        text="Fire!"/>
             </HBox>
+            
             <HBox prefHeight="7.0" prefWidth="300.0" spacing="10.0">
                 <Label prefHeight="25.0" prefWidth="42.0" text="Time:">
                     <font>
