@@ -24,20 +24,17 @@ import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import no.social.snipergame.model.*;
 import no.social.snipergame.model.asset.*;
-import no.social.snipergame.network.NetworkConnection;
-import no.social.snipergame.network.SniperConnection;
-import no.social.snipergame.network.SpotterConnection;
 import no.social.snipergame.util.Constants;
+import org.eclipse.paho.client.mqttv3.MqttClient;
+import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
+import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.net.Socket;
 import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import static no.social.snipergame.util.Constants.*;
 
 /**
  * @author Håkon Meyer Tørnquist <haakon.t@gmail.com>
@@ -54,8 +51,6 @@ public class ClientController implements Initializable  {
     @FXML private ComboBox<Constants.Difficulty> difficultyBox;
     @FXML private TextField nickNameField;
     @FXML private ComboBox<Constants.PlayerType> typeBox;
-    @FXML private TextField ipField;
-    @FXML private TextField portField;
     @FXML private Label statusLabel;
 
     @FXML private TilePane grid;
@@ -70,36 +65,24 @@ public class ClientController implements Initializable  {
     @FXML private TextField chatField;
 
     private Game game;
-    private Client client;
+    private Client client, opponent;
     private Gson gson;
     private Coordinates markedCoordinates;
 
-    // Connection between two clients
-    private NetworkConnection connection;
+    private MqttClient mqttClient;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        typeBox.setItems(FXCollections.observableArrayList(Constants.PlayerType.values()));
+        typeBox.setItems(FXCollections.observableArrayList(PlayerType.values()));
         typeBox.getSelectionModel().select(0);
-
-        difficultyBox.setItems(FXCollections.observableArrayList(Constants.Difficulty.values()));
+        difficultyBox.setItems(FXCollections.observableArrayList(Difficulty.values()));
         difficultyBox.getSelectionModel().select(0);
-
-        ipField.setText("localhost");
-        portField.setText("8080");
         gson = new GsonBuilder().create();
     }
 
     private void initGame() {
         waitingLabel.setVisible(false);
-        boolean sniper = game.isSniper();
-        if (connection == null) {
-            connection = sniper ? createSniperConnection() : createSpotterConnection();
-            try {
-                connection.startConnection();
-            } catch (Exception ignore) {
-            }
-        }
+        opponent = game.isSniper() ? game.getSpotter() : game.getSniper();
         // Game window: X:23, Y:16
         grid.getChildren().clear();
         for (int i = 0; i < 23*16; i++) {
@@ -124,7 +107,7 @@ public class ClientController implements Initializable  {
         fireButton.setVisible(false);
 
         // Sniper specific stuff
-        if (sniper) {
+        if (game.isSniper()) {
             windLabel.setText("");
             coordinateLabel.setText("");
             fireButton.setVisible(true);
@@ -139,7 +122,7 @@ public class ClientController implements Initializable  {
             fireButton.setVisible(false);
         }
 
-        Image scope = new Image("/crosshair.png");
+        Image scope = new Image("/cross_hair.png");
         ImageView mark = new ImageView("/red-x.png");
         grid.setCursor(new ImageCursor(scope, scope.getWidth()/2, scope.getHeight()/2));
         grid.setOnMouseMoved(event -> currentCoordinatesLabel.setText("X: " + (int) event.getX()/40 + " Y: " + (int) event.getY()/40));
@@ -182,39 +165,50 @@ public class ClientController implements Initializable  {
     @FXML
     private void sendMessage() throws Exception {
         Message message = new Message(game.getId(), client,
-                (client.getType() == Constants.PlayerType.SNIPER ? game.getSpotter() : game.getSniper()), chatField.getText());
-        chatArea.appendText(message + "\n");
-        connection.send("MESSAGE" + gson.toJson(message));
+                (client.getType() == PlayerType.SNIPER ? game.getSpotter() : game.getSniper()), chatField.getText());
+        Platform.runLater(()-> chatArea.appendText(message + "\n"));
+        mqttClient.publish("client/" + opponent.getNickName() + "/message", new MqttMessage(gson.toJson(message).getBytes()));
     }
 
     @FXML
     private void sendWind() throws Exception {
-        connection.send("WIND" + gson.toJson(game.getWind()));
+        mqttClient.publish("client/" + opponent.getNickName() + "/wind", new MqttMessage(gson.toJson(game.getWind()).getBytes()));
     }
 
     @FXML
     private void sendCoordinates() throws Exception {
-        connection.send("COORDINATES" + gson.toJson(markedCoordinates));
+        mqttClient.publish("client/" + opponent.getNickName() + "/coordinates", new MqttMessage(gson.toJson(markedCoordinates).getBytes()));
     }
 
     @FXML
     private void connect() {
         client = new Client(nickNameField.getText(), typeBox.getSelectionModel().getSelectedItem(), difficultyBox.getSelectionModel().getSelectedItem());
-
-        RunnableClient runnableClient = new RunnableClient(ipField.getText(),
-                Integer.parseInt(portField.getText()), client);
-
-        new Thread(runnableClient).start();
+        instantiateMqttClient();
         waitingLabel.setVisible(true);
-        Timeline timer = new Timeline(new KeyFrame(Duration.millis(500), event -> {
+        Timeline waitingAnimation = new Timeline(new KeyFrame(Duration.millis(500), event -> {
             String wlText = waitingLabel.getText();
             if (wlText.endsWith("...")) wlText = wlText.substring(0, wlText.length()-3);
             else wlText += ".";
             waitingLabel.setText(wlText);
         }));
-        timer.setCycleCount(Animation.INDEFINITE);
-        timer.play();
+        waitingAnimation.setCycleCount(Animation.INDEFINITE);
+        waitingAnimation.play();
         connectButton.setDisable(true);
+    }
+
+    private void instantiateMqttClient() {
+        try {
+            MqttConnectOptions options = new MqttConnectOptions();
+            options.setUserName(MQTT_USERNAME);
+            options.setPassword(MQTT_PASSWORD);
+            mqttClient = new MqttClient("tcp://" + SERVER_HOSTNAME + ":" + SERVER_PORT, client.getNickName());
+            mqttClient.setCallback(new MqttClientHandler());
+            mqttClient.connect(options);
+            mqttClient.subscribe("client/" + client.getNickName() + "/#");
+            mqttClient.publish("server", new MqttMessage(gson.toJson(client).getBytes()));
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML
@@ -244,31 +238,9 @@ public class ClientController implements Initializable  {
                 winY -= wind.getSpeed();
                 break;
         }
-        System.out.println(winX + " " + winY);
         boolean isWon = (firedX == winX && firedY == winY);
         handleGameFinished(isWon);
-        connection.send("GAME_FINISHED" + String.valueOf(isWon));
-    }
-
-    private SpotterConnection createSpotterConnection() {
-        return new SpotterConnection(ipField.getText(), Constants.SERVER_PORT, data -> Platform.runLater(() -> processData(data.toString())));
-    }
-
-    private SniperConnection createSniperConnection() {
-        return new SniperConnection(Constants.SERVER_PORT, data -> Platform.runLater(() -> processData(data.toString())));
-    }
-
-    private void processData(String json) {
-        if (json.startsWith("WIND")) {
-            chatArea.appendText("Wind sent.");
-            windLabel.setText(gson.fromJson(json.substring(4), Wind.class).toString());
-        }
-        else if (json.startsWith("MESSAGE")) chatArea.appendText(gson.fromJson(json.substring(7), Message.class).toString() + "\n");
-        else if (json.startsWith("COORDINATES")) {
-            chatArea.appendText("Coordinates sent.\n");
-            coordinateLabel.setText(gson.fromJson(json.substring(11), Coordinates.class).toString());
-        }
-        else if (json.startsWith("GAME_FINISHED")) handleGameFinished(Boolean.valueOf(json.substring(13)));
+        mqttClient.publish("client/" + opponent.getNickName() + "/game_over", new MqttMessage(String.valueOf(isWon).getBytes()));
     }
 
     private void handleGameFinished(boolean isWon) {
@@ -296,44 +268,35 @@ public class ClientController implements Initializable  {
         new Thread(sleeper).start();
     }
 
-    private class RunnableClient implements Runnable{
-
-        final String dstAddress;
-        final int dstPort;
-        final Client client;
-
-        RunnableClient(String dstAddress, int port, Client client) {
-            this.dstAddress = dstAddress;
-            dstPort = port;
-            this.client = client;
+    public void close() {
+        try {
+            mqttClient.disconnect();
+            mqttClient.close();
+        } catch (MqttException e) {
+            e.printStackTrace();
         }
+    }
+
+    private class MqttClientHandler extends MqttHandler {
 
         @Override
-        public void run() {
-            Socket socket;
-            DataOutputStream dataOutputStream;
-            DataInputStream dataInputStream;
-
-            try {
-                socket = new Socket(dstAddress, dstPort);
-                socket.setKeepAlive(true);
-                dataOutputStream = new DataOutputStream(socket.getOutputStream());
-                dataInputStream = new DataInputStream(socket.getInputStream());
-
-                if (client != null) {
-                    dataOutputStream.writeUTF(gson.toJson(client));
+        public void internalMessageArrived(String topic, MqttMessage message) {
+            Platform.runLater(() -> {
+                if (topic.endsWith("game")) {
+                    game = gson.fromJson(message.toString(), Game.class);
+                    initGame();
+                } else if (topic.endsWith("message")) {
+                    chatArea.appendText(gson.fromJson(message.toString(), Message.class).toString() + "\n");
+                } else if (topic.endsWith("coordinates")) {
+                    chatArea.appendText("Coordinates received.\n");
+                    coordinateLabel.setText(gson.fromJson(message.toString(), Coordinates.class).toString());
+                } else if (topic.endsWith("wind")) {
+                    chatArea.appendText("Wind sent.\n");
+                    windLabel.setText(gson.fromJson(message.toString(), Wind.class).toString());
+                } else if (topic.endsWith("game_over")) {
+                    handleGameFinished(Boolean.valueOf(message.toString()));
                 }
-                if (game == null) {
-                    game = gson.fromJson(dataInputStream.readUTF(), Game.class);
-                    Platform.runLater(ClientController.this::initGame);
-                    Platform.runLater(() -> chatArea.appendText(game.getSniper().getNickName() + " (sniper) and "
-                            + game.getSpotter().getNickName() + " (spotter) are now playing together.\n"));
-                }
-
-            } catch (IOException ex) {
-                Logger.getLogger(ClientController.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            });
         }
-
     }
 }

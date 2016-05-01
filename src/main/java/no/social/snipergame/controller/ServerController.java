@@ -1,7 +1,5 @@
 package no.social.snipergame.controller;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -11,14 +9,18 @@ import javafx.scene.control.TextArea;
 import no.social.snipergame.model.Client;
 import no.social.snipergame.model.Game;
 import no.social.snipergame.util.Constants;
+import org.eclipse.paho.client.mqttv3.MqttClient;
+import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
+import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.net.*;
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.ResourceBundle;
+
+import static no.social.snipergame.util.Constants.*;
 
 /**
  * @author Håkon Meyer Tørnquist <haakon.t@gmail.com>
@@ -33,116 +35,39 @@ public class ServerController implements Initializable {
     @FXML private Label portLabel;
     @FXML private TextArea statusArea;
 
-    private ServerSocket serverSocket;
-    private final Map<String, ServerSocketAcceptedThread> clientMap = new HashMap<>();
+    private final List<Client> clients = new ArrayList<>();
+
+    private MqttClient server;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-
         //Auto scroll to bottom
         statusArea.textProperty().addListener((observable, oldValue, newValue) -> statusArea.setScrollTop(Double.MAX_VALUE));
-        ipLabel.setText(getIpAddress());
+        ipLabel.setText("m21.cloudmqtt.com");
+        portLabel.setText("12338");
 
-        Thread socketServerThread = new Thread(new SocketServerThread());
-        socketServerThread.setDaemon(true); //terminate the thread when program end
-        socketServerThread.start();
-    }
-
-    private class SocketServerThread extends Thread {
-
-        static final int SocketServerPORT = 8080;
-        int count = 0;
-
-        @Override
-        public void run() {
-            try {
-                Socket socket;
-
-                serverSocket = new ServerSocket(SocketServerPORT);
-                Platform.runLater(() -> portLabel.setText(String.valueOf(serverSocket.getLocalPort())));
-
-                while (true) {
-                    socket = serverSocket.accept();
-                    count++;
-
-                    //Start another thread
-                    //to prevent blocked by empty dataInputStream
-                    Thread acceptedThread = new Thread(new ServerSocketAcceptedThread(socket, count));
-                    acceptedThread.setDaemon(true); //terminate the thread when program end
-                    acceptedThread.start();
-                }
-            } catch (IOException ex) {
-                Logger.getLogger(ServerController.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-    }
-
-    private class ServerSocketAcceptedThread extends Thread {
-
-        Socket socket = null;
-        DataInputStream dataInputStream = null;
-        DataOutputStream dataOutputStream = null;
-        final int count;
-        final Gson gson;
-
-        ServerSocketAcceptedThread(Socket s, int c) {
-            socket = s;
-            count = c;
-            gson = new GsonBuilder().create();
-        }
-
-        @Override
-        public void run() {
-            try {
-                dataInputStream = new DataInputStream(socket.getInputStream());
-                dataOutputStream = new DataOutputStream(socket.getOutputStream());
-
-                //If dataInputStream empty,
-                //this thread will be blocked by readUTF(),
-                //but not the others
-                String messageFromClient = dataInputStream.readUTF();
-
-                String newMessage = "#" + count + " from " + socket.getInetAddress()
-                        + ":" + socket.getPort() + "\n"
-                        + "Msg from client: " + messageFromClient + "\n";
-
-                Client client = gson.fromJson(messageFromClient, Client.class);
-                clientMap.put(client.getNickName(), this);
-
-                Platform.runLater(() -> {
-                    statusArea.appendText(newMessage);
-                    clientListView.getItems().add(client);
-                    if (count >= 2) {
-                        Game game = startGameIfPossible();
-                        if (game != null) {
-                            String messageToSniper = gson.toJson(game.toSniper());
-                            String messageToSpotter = gson.toJson(game.toSpotter());
-                            try {
-                                clientMap.get(game.getSpotter().getNickName()).dataOutputStream.writeUTF(messageToSpotter);
-                                clientMap.get(game.getSniper().getNickName()).dataOutputStream.writeUTF(messageToSniper);
-                            } catch (IOException e) {
-                                Logger.getLogger(ServerController.class.getName()).log(Level.SEVERE, null, e);
-                            }
-                            statusArea.appendText("Msg to client: " + messageToSniper + "\n");
-                        }
-                    }
-                });
-
-            } catch (IOException ex) {
-                Logger.getLogger(ServerController.class.getName()).log(Level.SEVERE, null, ex);
-            }
+        try {
+            MqttConnectOptions options = new MqttConnectOptions();
+            options.setUserName(MQTT_USERNAME);
+            options.setPassword(MQTT_PASSWORD);
+            server = new MqttClient("tcp://" + SERVER_HOSTNAME + ":" + SERVER_PORT, "server");
+            server.setCallback(new MqttServerHandler());
+            server.connect(options);
+            server.subscribe("server");
+        } catch (MqttException e) {
+            e.printStackTrace();
         }
     }
 
     private Game startGameIfPossible() {
-        List<Client> cList = clientListView.getItems();
-        for (int i = 0; i < cList.size(); i++) {
-            for (int j = i+1; j < cList.size(); j++) {
-                Client c1 = cList.get(i), c2 = cList.get(j);
+        for (int i = 0; i < clients.size(); i++) {
+            for (int j = i+1; j < clients.size(); j++) {
+                Client c1 = clients.get(i), c2 = clients.get(j);
                 if (c1.getType() != c2.getType() && c1.getPreferredDifficulty() == c2.getPreferredDifficulty()) {
                     Client sniper = c1.getType() == Constants.PlayerType.SNIPER ? c1 : c2;
                     Client spotter = c1.getType() == Constants.PlayerType.SPOTTER ? c1 : c2;
-                    clientListView.getItems().removeAll(c1, c2);
+                    clients.removeAll(Arrays.asList(c1, c2));
+                    Platform.runLater(() -> clientListView.getItems().setAll(clients));
                     return new Game(currentId++, c1.getPreferredDifficulty(), sniper, spotter);
                 }
             }
@@ -150,28 +75,32 @@ public class ServerController implements Initializable {
         return null;
     }
 
-    private String getIpAddress() {
-        String ip = "";
+    public void close() {
         try {
-            Enumeration<NetworkInterface> enumNetworkInterfaces = NetworkInterface
-                    .getNetworkInterfaces();
-            while (enumNetworkInterfaces.hasMoreElements()) {
-                NetworkInterface networkInterface = enumNetworkInterfaces
-                        .nextElement();
-                Enumeration<InetAddress> enumINetAddress = networkInterface
-                        .getInetAddresses();
-                while (enumINetAddress.hasMoreElements()) {
-                    InetAddress inetAddress = enumINetAddress.nextElement();
-
-                    if (inetAddress.isSiteLocalAddress()) {
-                        ip += inetAddress.getHostAddress() + "\n";
-                    }
-                }
-            }
-        } catch (SocketException ex) {
-            Logger.getLogger(ServerController.class.getName()).log(Level.SEVERE, null, ex);
+            server.disconnect();
+            server.close();
+        } catch (MqttException e) {
+            e.printStackTrace();
         }
+    }
 
-        return ip;
+    private class MqttServerHandler extends MqttHandler {
+
+        @Override
+        public void internalMessageArrived(String topic, MqttMessage message) {
+            statusArea.appendText("Message received on " + topic + ": " + message.toString() + "\n");
+            clients.add(gson.fromJson(message.toString(), Client.class));
+            Game newGame = startGameIfPossible();
+            if (newGame != null) {
+                Platform.runLater(() -> {
+                    try {
+                        server.publish("client/" + newGame.getSpotter().getNickName() + "/game", gson.toJson(newGame.toSpotter()).getBytes(), 2, false);
+                        server.publish("client/" + newGame.getSniper().getNickName() + "/game", gson.toJson(newGame.toSniper()).getBytes(), 2, false);
+                    } catch (MqttException e) {
+                        e.printStackTrace();
+                    }
+                });
+            }
+        }
     }
 }

@@ -6,8 +6,11 @@ package no.social.snipergame.util;
  */
 public class Constants {
 
-    public static final int SERVER_PORT = 1337;
-    public static final String SERVER_HOSTNAME = "10.24.22.233";
+    public static final String
+            SERVER_PORT = "12338",
+            SERVER_HOSTNAME = "m21.cloudmqtt.com",
+            MQTT_USERNAME = "taxdexgp";
+    public static final char[] MQTT_PASSWORD = "9XmcKUZQ2qaW".toCharArray();
     public static final int BOARD_SIZE = 23*16;
 
     public enum Difficulty {
