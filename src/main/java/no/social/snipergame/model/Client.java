@@ -1,5 +1,7 @@
 package no.social.snipergame.model;
 
+import lombok.Data;
+
 import static no.social.snipergame.util.Constants.Difficulty;
 import static no.social.snipergame.util.Constants.PlayerType;
 
@@ -7,6 +9,7 @@ import static no.social.snipergame.util.Constants.PlayerType;
  * @author Håkon Meyer Tørnquist <haakon.t@gmail.com>
  *         Date: 18.04.2016 12.36.
  */
+@Data
 public class Client {
 
     private final String nickName;
@@ -22,17 +25,5 @@ public class Client {
     @Override
     public String toString() {
         return "[" + preferredDifficulty + "][" + type + "] " + nickName;
-    }
-
-    public String getNickName() {
-        return nickName;
-    }
-
-    public PlayerType getType() {
-        return type;
-    }
-
-    public Difficulty getPreferredDifficulty() {
-        return preferredDifficulty;
     }
 }

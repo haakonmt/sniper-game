@@ -11,6 +11,7 @@
 
     <properties>
         <gson.version>1.7.1</gson.version>
+        <lombok.version>1.16.10</lombok.version>
         <paho.version>1.0.2</paho.version>
     </properties>
 
@@ -24,6 +25,12 @@
             <groupId>org.eclipse.paho</groupId>
             <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
             <version>${paho.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

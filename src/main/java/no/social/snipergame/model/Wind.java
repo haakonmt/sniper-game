@@ -1,5 +1,6 @@
 package no.social.snipergame.model;
 
+import lombok.Data;
 import no.social.snipergame.util.Constants.Direction;
 
 import java.util.Random;
@@ -10,6 +11,7 @@ import static no.social.snipergame.util.Constants.Direction.*;
  * @author Håkon Meyer Tørnquist <haakon.t@gmail.com>
  *         Date: 01.02.2016 16.13.
  */
+@Data
 public class Wind {
 
     private final int speed;
@@ -33,14 +35,6 @@ public class Wind {
                 : random < 0.75 ? WEST
                 : random < 0.875 ? NORTH_WEST
                 : NORTH;
-    }
-
-    public int getSpeed() {
-        return speed;
-    }
-
-    public Direction getDirection() {
-        return direction;
     }
 
     @Override

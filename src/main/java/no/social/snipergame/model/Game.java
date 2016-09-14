@@ -1,5 +1,7 @@
 package no.social.snipergame.model;
 
+import lombok.Data;
+
 import java.time.LocalDateTime;
 import java.util.Random;
 
@@ -10,6 +12,7 @@ import static no.social.snipergame.util.Constants.Difficulty;
  * @author Håkon Meyer Tørnquist <haakon.t@gmail.com>
  *         Date: 22.02.2016 10.29.
  */
+@Data
 public class Game {
 
     private final Long id;
@@ -48,22 +51,6 @@ public class Game {
         tile = new String[]{"brick", "desert", "grass", "ground", "ground2"}[random.nextInt(5)];
     }
 
-    public Person[] getPersons() {
-        return persons;
-    }
-
-    public Client getSpotter() {
-        return spotter;
-    }
-
-    public Client getSniper() {
-        return sniper;
-    }
-
-    public Wind getWind() {
-        return wind;
-    }
-
     public Game toSniper() {
         isSniper = true;
         return this;
@@ -74,44 +61,8 @@ public class Game {
         return this;
     }
 
-    public boolean isSniper() {
-        return isSniper;
-    }
-
     @Override
     public String toString() {
         return difficulty + " - " + startTime;
-    }
-
-    public String getTile() {
-        return tile;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public int getWinX() {
-        return winX;
-    }
-
-    public int getWinY() {
-        return winY;
-    }
-
-    public boolean isWon() {
-        return won;
-    }
-
-    public void setWon(boolean won) {
-        this.won = won;
-    }
-
-    public long getStartMillis() {
-        return startMillis;
-    }
-
-    public Person getTargetPerson() {
-        return targetPerson;
     }
 }

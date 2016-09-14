@@ -1,6 +1,7 @@
 package no.social.snipergame.model;
 
 import javafx.scene.layout.StackPane;
+import lombok.Data;
 import no.social.snipergame.model.asset.*;
 import no.social.snipergame.model.asset.CharacterAsset.Sex;
 
@@ -13,6 +14,8 @@ import static no.social.snipergame.model.asset.CharacterAsset.Sex.MALE;
  * @author Håkon Meyer Tørnquist <haakon.t@gmail.com>
  *         Date: 22.02.2016 16.05.
  */
+
+@Data
 public class Person {
 
     private static final Random random = new Random();
@@ -51,14 +54,6 @@ public class Person {
         this.target = target;
     }
 
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
     public String getFullName() {
         return firstName + " " + lastName;
     }
@@ -69,34 +64,6 @@ public class Person {
 
     private static String getRandomStringFrom(String... items) {
         return items[random.nextInt(items.length)];
-    }
-
-    public boolean isTarget() {
-        return target;
-    }
-
-    public Sex getSex() {
-        return sex;
-    }
-
-    public String getBase() {
-        return base;
-    }
-
-    public String getHair() {
-        return hair;
-    }
-
-    public String getShirt() {
-        return shirt;
-    }
-
-    public String getPants() {
-        return pants;
-    }
-
-    public String getShoes() {
-        return shoes;
     }
 
     public StackPane compile() {
